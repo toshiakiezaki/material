@@ -28,10 +28,9 @@
    * @param {String=} md-placeholder The date input placeholder value.
    * @param {String=} md-open-on-focus When present, the calendar will be opened when the input is focused.
    * @param {Boolean=} md-is-open Expression that can be used to open the datepicker's calendar on-demand.
-   * @param {String=} md-hide-icons Determines which datepicker icons should be hidden. Note that this may cause the
-   * datepicker to not align properly with other components. **Use at your own risk.** Possible values are:
+   * @param {String=} md-hide-icons Determines which datepicker icons should be hidden. **Use at your own risk.** Possible values are:
    * * `"all"` - Hides all icons.
-   * * `"calendar"` - Only hides the calendar icon.
+   * * `"calendar"` - Only hides the calendar icon (Default).
    * * `"triangle"` - Only hides the triangle icon.
    * @param {boolean=} ng-disabled Whether the datepicker is disabled.
    * @param {boolean=} ng-required Whether a value is required for the datepicker.
@@ -59,7 +58,7 @@
         // Buttons are not in the tab order because users can open the calendar via keyboard
         // interaction on the text input, and multiple tab stops for one component (picker)
         // may be confusing.
-        var hiddenIcons = tAttrs.mdHideIcons;
+        var hiddenIcons = (tAttrs.mdHideIcons ? tAttrs.mdHideIcons : 'calendar');
 
         var calendarButton = (hiddenIcons === 'all' || hiddenIcons === 'calendar') ? '' :
           '<md-button class="md-datepicker-button md-icon-button" type="button" ' +
@@ -80,7 +79,7 @@
         return '' +
         calendarButton +
         '<div class="md-datepicker-input-container" ' +
-            'ng-class="{\'md-datepicker-focused\': ctrl.isFocused}">' +
+            'ng-class="{\'md-datepicker-focused\': ctrl.isFocused, \'md-datepicker-has-calendar\': ctrl.isShowingCalendar}">' +
           '<input class="md-datepicker-input" aria-haspopup="true" ' +
               'ng-focus="ctrl.setFocused(true)" ng-blur="ctrl.setFocused(false)">' +
           triangleButton +
@@ -106,7 +105,8 @@
         maxDate: '=mdMaxDate',
         placeholder: '@mdPlaceholder',
         dateFilter: '=mdDateFilter',
-        isOpen: '=?mdIsOpen'
+        isOpen: '=?mdIsOpen',
+        hideIcons: '=mdHideIcons'
       },
       controller: DatePickerCtrl,
       controllerAs: 'ctrl',
@@ -134,6 +134,11 @@
 
           mdInputContainer.setHasPlaceholder(attr.mdPlaceholder);
           mdInputContainer.element.addClass(INPUT_CONTAINER_CLASS);
+          if (mdDatePickerCtrl.isShowingCalendar) {
+            mdInputContainer.element.addClass(INPUT_HAS_CALENDAR_CLASS);
+          } else {
+            mdInputContainer.element.removeClass(INPUT_HAS_CALENDAR_CLASS);
+          }
           mdInputContainer.input = element;
 
           if (!mdInputContainer.label) {
@@ -159,6 +164,9 @@
 
   /** Class applied to the md-input-container, if a datepicker is placed inside it */
   var INPUT_CONTAINER_CLASS = '_md-datepicker-floating-label';
+
+  /** Class applied to the md-input-container, if datepicker has the calendar icon inside it */
+  var INPUT_HAS_CALENDAR_CLASS = '_md-datepicker-has-calendar';
 
   /** Default time in ms to debounce input event by. */
   var DEFAULT_DEBOUNCE_INTERVAL = 500;
@@ -226,6 +234,9 @@
     /** @type {!angular.NgModelController} */
     this.ngModelCtrl = null;
 
+    /** @type {!angular.MdInputContainer} */
+    this.mdInputContainer = null;
+
     /** @type {HTMLInputElement} */
     this.inputElement = $element[0].querySelector('input');
 
@@ -261,6 +272,9 @@
 
     /** @type {boolean} */
     this.isFocused = false;
+
+    /** @type {boolean} */
+    this.isShowingCalendar = ($attrs.mdHideIcons && ($attrs.mdHideIcons !== 'all' && $attrs.mdHideIcons !== 'calendar'));
 
     /** @type {boolean} */
     this.isDisabled;
@@ -641,10 +655,15 @@
       this.attachCalendarPane();
       this.focusCalendar();
 
-      // Attach click listener inside of a timeout because, if this open call was triggered by a
-      // click, we don't want it to be immediately propogated up to the body and handled.
+      // Attach click listener and focus input container inside of a timeout because, if this open
+      // call was triggered by a click, we don't want it to be immediately propogated up to the
+      // body and handled.
       var self = this;
       this.$mdUtil.nextTick(function() {
+        if (self.mdInputContainer) {
+          self.mdInputContainer.setFocused(true);
+        }
+
         // Use 'touchstart` in addition to click in order to work on iOS Safari, where click
         // events aren't propogated under most circumstances.
         // See http://www.quirksmode.org/blog/archives/2014/02/mouse_event_bub.html
@@ -679,6 +698,10 @@
       self.detachCalendarPane();
       self.isCalendarOpen = self.isOpen = false;
       self.ngModelCtrl.$setTouched();
+      if (self.mdInputContainer) {
+        self.mdInputContainer.setHasValue(self.date != null);
+        self.mdInputContainer.setFocused(self.focused);
+      }
 
       self.documentElement.off('click touchstart', self.bodyClickHandler);
       window.removeEventListener('resize', self.windowResizeHandler);

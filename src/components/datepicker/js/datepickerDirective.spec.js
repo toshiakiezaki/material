@@ -14,7 +14,8 @@ describe('md-datepicker', function() {
     '<md-datepicker name="birthday" ' +
          'md-max-date="maxDate" ' +
          'md-min-date="minDate" ' +
-         'md-date-filter="dateFilter"' +
+         'md-date-filter="dateFilter" ' +
+         'md-hide-icons="hideIcons" ' +
          'ng-model="myDate" ' +
          'ng-change="dateChangedHandler()" ' +
          'ng-required="isRequired" ' +
@@ -36,6 +37,7 @@ describe('md-datepicker', function() {
     pageScope = $rootScope.$new();
     pageScope.myDate = initialDate;
     pageScope.isDisabled = false;
+    pageScope.hideIcons = 'none';
     pageScope.dateChangedHandler = jasmine.createSpy('ng-change handler');
 
     createDatepickerInstance(DATEPICKER_TEMPLATE);
