@@ -341,7 +341,53 @@ MdIconProvider.prototype = {
     return this;
   },
 
+  preloadIcons: function ($templateCache) {
+    var iconProvider = this;
+    var svgRegistry = [
+      {
+        id : 'md-tabs-arrow',
+        url: 'md-tabs-arrow.svg',
+        svg: '<svg version="1.1" x="0px" y="0px" viewBox="0 0 24 24"><g><polygon points="15.4,7.4 14,6 8,12 14,18 15.4,16.6 10.8,12 "/></g></svg>'
+      },
+      {
+        id : 'md-close',
+        url: 'md-close.svg',
+        svg: '<svg version="1.1" x="0px" y="0px" viewBox="0 0 24 24"><g><path d="M19 6.41l-1.41-1.41-5.59 5.59-5.59-5.59-1.41 1.41 5.59 5.59-5.59 5.59 1.41 1.41 5.59-5.59 5.59 5.59 1.41-1.41-5.59-5.59z"/></g></svg>'
+      },
+      {
+        id:  'md-cancel',
+        url: 'md-cancel.svg',
+        svg: '<svg version="1.1" x="0px" y="0px" viewBox="0 0 24 24"><g><path d="M12 2c-5.53 0-10 4.47-10 10s4.47 10 10 10 10-4.47 10-10-4.47-10-10-10zm5 13.59l-1.41 1.41-3.59-3.59-3.59 3.59-1.41-1.41 3.59-3.59-3.59-3.59 1.41-1.41 3.59 3.59 3.59-3.59 1.41 1.41-3.59 3.59 3.59 3.59z"/></g></svg>'
+      },
+      {
+        id:  'md-menu',
+        url: 'md-menu.svg',
+        svg: '<svg version="1.1" x="0px" y="0px" viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>'
+      },
+      {
+        id:  'md-toggle-arrow',
+        url: 'md-toggle-arrow-svg',
+        svg: '<svg version="1.1" x="0px" y="0px" viewBox="0 0 48 48"><path d="M24 16l-12 12 2.83 2.83 9.17-9.17 9.17 9.17 2.83-2.83z"/><path d="M0 0h48v48h-48z" fill="none"/></svg>'
+      },
+      {
+        id:  'md-calendar',
+        url: 'md-calendar.svg',
+        svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>'
+      }, {
+        id:  'md-arrow-up',
+        url: 'md-arrow-up.svg',
+        svg: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/></svg>'
+      }
+    ];
+
+    svgRegistry.forEach(function(asset){
+      iconProvider.icon(asset.id,  asset.url);
+      $templateCache.put(asset.url, asset.svg);
+    });
+  },
+
   $get: ['$templateRequest', '$q', '$log', '$templateCache', '$mdUtil', '$sce', function($templateRequest, $q, $log, $templateCache, $mdUtil, $sce) {
+    this.preloadIcons($templateCache);
     return MdIconService(config, $templateRequest, $q, $log, $mdUtil, $sce);
   }]
 };
@@ -377,21 +423,21 @@ function ConfigurationItem(url, viewBoxSize) {
  * @usage
  * <hljs lang="js">
  * function SomeDirective($mdIcon) {
-  *
-  *   // See if the icon has already been loaded, if not
-  *   // then lookup the icon from the registry cache, load and cache
-  *   // it for future requests.
-  *   // NOTE: ID queries require configuration with $mdIconProvider
-  *
-  *   $mdIcon('android').then(function(iconEl)    { element.append(iconEl); });
-  *   $mdIcon('work:chair').then(function(iconEl) { element.append(iconEl); });
-  *
-  *   // Load and cache the external SVG using a URL
-  *
-  *   $mdIcon('img/icons/android.svg').then(function(iconEl) {
-  *     element.append(iconEl);
-  *   });
-  * };
+ *
+ *   // See if the icon has already been loaded, if not
+ *   // then lookup the icon from the registry cache, load and cache
+ *   // it for future requests.
+ *   // NOTE: ID queries require configuration with $mdIconProvider
+ *
+ *   $mdIcon('android').then(function(iconEl)    { element.append(iconEl); });
+ *   $mdIcon('work:chair').then(function(iconEl) { element.append(iconEl); });
+ *
+ *   // Load and cache the external SVG using a URL
+ *
+ *   $mdIcon('img/icons/android.svg').then(function(iconEl) {
+ *     element.append(iconEl);
+ *   });
+ * };
  * </hljs>
  *
  * NOTE: The `<md-icon />  ` directive internally uses the `$mdIcon` service to query, loaded, and instantiate
