@@ -320,6 +320,67 @@ describe('<md-autocomplete>', function() {
       element.remove();
     }));
 
+    describe('md-escape-options checks', function() {
+      var scope, ctrl, element;
+      var template = '\
+              <md-autocomplete\
+                  md-escape-options="{{escapeOptions}}"\
+                  md-search-text="searchText"\
+                  md-items="item in match(searchText)"\
+                  md-item-text="item.display"\
+                  placeholder="placeholder">\
+                <span md-highlight-text="searchText">{{item.display}}</span>\
+              </md-autocomplete>';
+      beforeEach( inject(function($timeout) {
+        scope = createScope();
+        element = compile(template, scope);
+        ctrl = element.controller('mdAutocomplete');
+
+        // Focus the input
+        ctrl.focus();
+        $timeout.flush();
+        expect(scope.searchText).toBe('');
+
+        scope.$apply('searchText = "test"');
+
+        expect(scope.searchText).toBe('test');
+
+        $timeout.flush();
+      }));
+
+      afterEach(function() { element.remove() });
+      it('does not clear the value nor blur when hitting escape', inject(function($mdConstant, $document) {
+        scope.$apply('escapeOptions = "none"');
+        scope.$apply(function() {
+          ctrl.keydown(keydownEvent($mdConstant.KEY_CODE.ESCAPE));
+        });
+
+        expect(scope.searchText).toBe('test');
+        expect($document.activeElement).toBe(ctrl[0]);
+      }));
+
+      it('does not clear the value but does blur when hitting escape', inject(function($mdConstant, $document) {
+        scope.$apply('escapeOptions = "blur"');
+        scope.$apply(function() {
+          ctrl.keydown(keydownEvent($mdConstant.KEY_CODE.ESCAPE));
+        });
+
+        expect(scope.searchText).toBe('test');
+        expect($document.activeElement).toBe(undefined);
+      }));
+
+      it('clear the value but does not blur when hitting escape', inject(function($mdConstant, $document) {
+        scope.$apply('escapeOptions = "clear"');
+        scope.$apply(function() {
+          ctrl.keydown(keydownEvent($mdConstant.KEY_CODE.ESCAPE));
+        });
+
+        expect(scope.searchText).toBe('');
+        expect($document.activeElement).toBe(ctrl[0]);
+      }));
+
+    });
+
     it('should not show the progressbar when hitting escape on an empty input', inject(function($mdConstant, $timeout) {
       var scope = createScope();
       var template = '\
@@ -563,6 +624,40 @@ describe('<md-autocomplete>', function() {
 
       // Should be hidden on once the scope is destroyed to ensure proper cleanup (like md-scroll-mask is removed from the DOM)
       expect($mdUtil.enableScrolling).toHaveBeenCalled();
+    }));
+
+    it('should initialize the search text with an empty string', inject(function($mdUtil, $timeout, $material) {
+      var scope = createScope();
+
+      // Delete our searchText variable from the generated scope, because we
+      // want to confirm, that the autocomplete uses an empty string by default.
+      delete scope.searchText;
+
+      var template =
+        '<md-autocomplete' +
+        '   md-selected-item="selectedItem"' +
+        '   md-search-text="searchText"' +
+        '   md-items="item in match(searchText)"' +
+        '   md-item-text="item.display"' +
+        '   placeholder="placeholder">' +
+        '  <md-item-template>{{item.display}}</md-item-template>' +
+        '  <md-not-found>Sorry, not found...</md-not-found>' +
+        '</md-autocomplete>';
+      var element = compile(template, scope);
+      var ctrl = element.controller('mdAutocomplete');
+
+      $material.flushOutstandingAnimations();
+
+      // Run our initial flush
+      $timeout.flush();
+      waitForVirtualRepeat(element);
+
+      // Set our search text to a value that we know doesn't exist
+      expect(scope.searchText).toBe('');
+
+      // Make sure we wrap up anything and remove the element
+      $timeout.flush();
+      element.remove();
     }));
 
     it('ensures the parent scope digests along with the current scope', inject(function($timeout, $material) {
