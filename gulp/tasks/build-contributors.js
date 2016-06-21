@@ -13,7 +13,7 @@
 
     exec([
       'rm -f '+ appPath + '/contributors.json',
-      'githubcontrib --owner=angular --repository=material --cols=6 --format=json --showlogin=true --sortBy=login --sha=master > ' + appPath + '/contributors.json'
+      'githubcontrib --owner=angular --repository=toshiakiezaki --cols=6 --format=json --showlogin=true --sortBy=login --sha=master > ' + appPath + '/contributors.json'
       ]);
   };
   exports.dependencies = ['docs-js'];
@@ -26,7 +26,7 @@
     try {
       var options = { } ;
       for (var key in userOptions) options[ key ] = userOptions[ key ];
-      return child_process.execSync(cmd + ' 2> /dev/null', options).toString().trim();
+      return child_process.execSync(cmd, options).toString().trim();
     } catch (err) {
       return err;
     }
