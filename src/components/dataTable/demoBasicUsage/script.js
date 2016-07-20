@@ -5,7 +5,7 @@ angular
 function TableDemoCtrl($log) {
 
   this.options = {
-    auto: false,
+    auto: true,
     multiple: false,
     rowSelection: true
   };
@@ -116,5 +116,9 @@ function TableDemoCtrl($log) {
 
   this.trackBy = function (dessert) {
     return dessert.name;
+  };
+
+  this.log = function (order) {
+    $log.info('Table: Reorder ' + order);
   };
 }

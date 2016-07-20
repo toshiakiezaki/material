@@ -1,16 +1,18 @@
-table.md-table {
+md-table.md-table {
 
-  tr {
+  md-row {
+    display: table-row;
+
     &.md-auto-select:not([disabled]):hover {
       transition: background 0.2s;
     }
   }
 
-  thead tr {
+  md-head md-row {
     height: 56px;
   }
 
-  tbody tr {
+  md-body md-row {
     height: 48px;
   }
 

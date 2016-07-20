@@ -1,7 +1,7 @@
-table.md-table.md-THEME_NAME-theme {
+md-table.md-table.md-THEME_NAME-theme {
 
-  thead {
-    th {
+  md-head {
+    md-cell {
       color: '{{ foreground-2 }}';
 
       &.md-active {
@@ -17,21 +17,21 @@ table.md-table.md-THEME_NAME-theme {
       }
     }
 
-    &:not(:last-of-type) th {
+    &:not(:last-of-type) md-cell {
       // Some users may use multiple head rows inside of the table.
       // In this case, we show a border between those rows.
       border-bottom: 1px '{{ foreground-4 }}' solid;
     }
   }
 
-  tbody {
-    td {
+  md-body {
+    md-cell {
       color: '{{ foreground-1 }}';
       border-top: 1px '{{ foreground-4 }}' solid;
     }
   }
 
-  tr {
+  md-row {
     &.md-selected {
       background: '{{ background-hue-2 }}';
     }

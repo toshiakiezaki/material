@@ -1,36 +1,4 @@
-angular.module('material.components.table').directive('mdTable', mdTable);
-
-/**
- * @ngdoc directive
- * @name mdTable
- * @module material.components.dataTable
- *
- * @description
- *
- * Data tables allow users to view and manipulate large data sets efficiently.
- *
- * Data tables are composed of a component hierarchy, with the `md-table` component being the root
- * component. An important distinction between this component and other components is data tables
- * **do not** use custom elements. The reason data tables do not use custom elements is to preserve
- * functionality of HTML tables. For example, `rowspan` and `colspan` do not work with CSS tables.
- *
- * @usage
- *
- * <hljs lang="html">
- * <table md-table>
- *   <tbody>
- *     <tr>
- *       <td></td>
- *     </tr>
- *   </tbody>
- * </table>
- * </hljs>
- *
- * @param {boolean=} md-row-select Enables row selection.
- * @param {*=} md-selected A model for the selected item(s). If multiple selection is enabled the selected items will be stored in an array.
- * @param {boolean=} multiple Allows multiple items to be selected.
- */
-function mdTable() {
+angular.module('material.components.table').directive('mdTable', function() {
 
   function compile(tElement) {
     tElement.addClass('md-table');
@@ -42,7 +10,7 @@ function mdTable() {
         return set[i];
       }
     }
-  }
+  };
 
   function item(set, index) {
     if(!isFinite(index)) {
@@ -54,7 +22,7 @@ function mdTable() {
     }
 
     return set[index];
-  }
+  };
 
   function search(set, callback) {
     for(var i = 0; i < set.length; i++) {
@@ -64,12 +32,9 @@ function mdTable() {
         return result;
       }
     }
-  }
+  };
 
-  /**
-   * @ngInject
-   */
-  function Controller($attrs, $element, $scope, $mdUtil) {
+  function controller($attrs, $element, $scope, $mdUtil) {
     var self = this;
     var watchListener;
     var modelChangeListeners = [];
@@ -78,23 +43,15 @@ function mdTable() {
     self.item = item;
     self.search = search;
 
-    Object.defineProperty(self, 'rows', {
-      get: function () {
-        return Array.prototype.filter.call($element.prop('rows'), function (row) {
-          return !row.classList.contains('ng-leave');
-        });
-      }
-    });
-
     Object.defineProperty(self, 'tBodies', {
       get: function () {
-        return Array.prototype.slice.call($element.prop('tBodies'));
+        return new Array($element.find('md-body')[0]);
       }
     });
 
     Object.defineProperty(self, 'tHead', {
       get: function () {
-        return $element.prop('tHead');
+        return $element.find("md-head")[0];
       }
     });
 
@@ -122,7 +79,7 @@ function mdTable() {
       });
 
       $element.addClass('md-select');
-    }
+    };
 
     function onDisableSelection() {
       if(angular.isFunction(watchListener)) {
@@ -130,7 +87,7 @@ function mdTable() {
       }
 
       $element.removeClass('md-select');
-    }
+    };
 
     $attrs.$observe('multiple', function (multiple) {
       self.multiple = $mdUtil.parseAttributeBoolean(multiple);
@@ -156,11 +113,11 @@ function mdTable() {
   return {
     bindToController: true,
     compile: compile,
-    controller: Controller,
+    controller: controller,
     controllerAs: '$mdTable',
-    restrict: 'A',
+    restrict: 'E',
     scope: {
       selected: '=?mdSelected'
     }
   };
-}
+});
