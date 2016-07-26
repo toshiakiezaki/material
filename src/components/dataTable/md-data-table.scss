@@ -1,0 +1,382 @@
+md-backdrop.md-edit-dialog-backdrop {
+  z-index: 80;
+}
+md-edit-dialog {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+      flex-direction: column;
+  position: fixed;
+  z-index: 81;
+  background-color: #f9f9f9;
+  border-radius: 2px;
+  cursor: default;
+}
+md-edit-dialog > .md-content {
+  padding: 16px 24px 0;
+}
+md-edit-dialog > .md-content .md-title {
+  color: rgba(0, 0, 0, 0.87);
+  margin-bottom: 8px;
+}
+md-edit-dialog > .md-content md-input-container {
+  margin: 0;
+  font-size: 13px;
+}
+md-edit-dialog > .md-content md-input-container input {
+  float: none;
+}
+md-edit-dialog > .md-content md-input-container .md-errors-spacer {
+  min-height: auto;
+  min-width: auto;
+  color: rgba(0, 0, 0, 0.54);
+}
+md-edit-dialog > .md-content md-input-container .md-errors-spacer .md-char-counter {
+  padding: 5px 2px 5px 0;
+}
+md-edit-dialog > .md-content md-input-container [ng-message] {
+  padding: 5px 0 5px 2px;
+}
+md-edit-dialog > .md-actions {
+  margin: 0 16px 8px;
+}
+md-edit-dialog > .md-actions .md-button {
+  margin: 0;
+  min-width: initial;
+}
+md-edit-dialog > .md-actions .md-button + .md-button {
+  margin-left: 8px;
+}
+.md-table-pagination {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  -ms-flex-pack: end;
+      justify-content: flex-end;
+  -ms-flex-wrap: wrap-reverse;
+      flex-wrap: wrap-reverse;
+  box-sizing: border-box;
+  padding: 0 24px;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  border-top: 1px rgba(0, 0, 0, 0.12) solid;
+}
+.md-table-pagination md-select {
+  -ms-flex-pack: end;
+      justify-content: flex-end;
+  min-width: 64px;
+}
+.md-table-pagination md-select:not([disabled]):focus ._md-select-value {
+  color: rgba(0, 0, 0, 0.54);
+}
+.md-table-pagination md-select ._md-select-value {
+  -ms-flex: 0 0 auto;
+      flex: 0 0 auto;
+}
+.md-table-pagination md-select ._md-select-value span._md-select-icon {
+  -ms-flex-pack: center;
+      justify-content: center;
+  text-align: center;
+  margin-right: -6px !important;
+}
+.md-table-pagination md-select ._md-select-value span._md-select-icon:after {
+  top: initial;
+  transform: scaleY(0.5) scaleX(1);
+}
+.md-table-pagination > * {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  height: 56px;
+}
+.md-table-pagination > .buttons:not(:first-child),
+.md-table-pagination > .limit-select:not(:first-child) {
+  margin-left: 32px;
+}
+.md-table-pagination > .buttons {
+  margin-right: -16px;
+}
+.md-table-pagination > .buttons > .md-button.md-icon-button {
+  margin: 0;
+}
+.md-table-pagination > .buttons > .label + .md-button.md-icon-button {
+  margin-left: 20px;
+}
+md-select.md-table-select {
+  margin: 0;
+}
+md-select.md-table-select > ._md-select-value {
+  padding: 0;
+  min-width: 0;
+  min-height: 24px;
+  border-bottom: 0 !important;
+}
+md-select.md-table-select > ._md-select-value > span {
+  display: block;
+  height: auto;
+  transform: none !important;
+}
+md-select.md-table-select > ._md-select-value > span > ._md-text {
+  display: inherit;
+  height: inherit;
+  transform: inherit;
+}
+md-select.md-table-select > ._md-select-value > span._md-select-icon {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  height: 24px;
+  margin: 0;
+}
+md-select.md-table-select > ._md-select-value > span._md-select-icon:after {
+  top: initial;
+}
+._md-select-menu-container.md-table-select,
+._md-select-menu-container.md-pagination-select {
+  margin-left: -2px;
+  border-radius: 2px;
+}
+._md-select-menu-container.md-table-select md-select-menu,
+._md-select-menu-container.md-pagination-select md-select-menu,
+._md-select-menu-container.md-table-select md-content,
+._md-select-menu-container.md-pagination-select md-content {
+  border-radius: inherit;
+}
+._md-select-menu-container.md-table-select md-content,
+._md-select-menu-container.md-pagination-select md-content {
+  padding: 0;
+}
+._md-select-menu-container.md-table-select ._md-text {
+  font-size: 13px;
+}
+._md-select-menu-container.md-pagination-select ._md-text {
+  font-size: 12px;
+}
+md-toolbar.md-table-toolbar {
+  box-shadow: none;
+}
+md-toolbar.md-table-toolbar.md-default-theme:not(.md-menu-toolbar).md-default,
+md-toolbar.md-table-toolbar:not(.md-menu-toolbar).md-default {
+  background-color: #ffffff;
+  color: rgba(0, 0, 0, 0.87);
+}
+md-toolbar.md-table-toolbar.md-default-theme:not(.md-menu-toolbar).md-default .md-button,
+md-toolbar.md-table-toolbar:not(.md-menu-toolbar).md-default .md-button {
+  color: rgba(0, 0, 0, 0.87);
+}
+@media only screen and (max-width: 959px) and (min-width: 0) and (orientation: landscape) {
+  md-toolbar.md-table-toolbar .md-toolbar-tools {
+    height: 64px;
+    max-height: initial;
+  }
+}
+md-toolbar.md-table-toolbar .md-toolbar-tools {
+  padding: 0 24px;
+}
+md-toolbar.md-table-toolbar .md-toolbar-tools md-icon {
+  color: rgba(0, 0, 0, 0.54);
+}
+md-toolbar.md-table-toolbar .md-toolbar-tools > .md-button.md-icon-button {
+  margin: 0;
+}
+md-toolbar.md-table-toolbar .md-toolbar-tools > .md-button.md-icon-button:first-child {
+  margin-left: -12px;
+}
+md-toolbar.md-table-toolbar .md-toolbar-tools > .md-button.md-icon-button:last-child {
+  margin-right: -12px;
+}
+md-card > md-toolbar.md-table-toolbar:first-child,
+md-card > md-table-container:first-child {
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+}
+md-card > md-toolbar.md-table-toolbar:last-child,
+md-card > md-table-container:last-child {
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+md-table-container {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+md-table.md-table {
+  display: table;
+  width: 100%;
+  border-spacing: 0;
+  overflow: hidden;
+}
+md-table.md-table md-head.md-head {
+  display: table-header-group;
+}
+md-table.md-table md-body.md-body {
+  display: table-row-group;
+}
+md-table.md-table md-head.md-head > md-row.md-row {
+  display: table-row;
+  height: 56px;
+}
+md-table.md-table md-body.md-body > md-row.md-row,
+md-table.md-table md-foot.md-foot > md-row.md-row {
+  display: table-row;
+  height: 48px;
+}
+md-table.md-table thead + .md-table-progress md-progress-linear {
+  top: -3px;
+}
+md-table.md-table .md-table-progress th {
+  padding: 0;
+}
+md-table.md-table .md-table-progress th md-progress-linear {
+  height: 0;
+  transition: opacity 1s;
+}
+md-table.md-table .md-table-progress th md-progress-linear.ng-hide {
+  opacity: 0;
+}
+md-table.md-table .md-table-progress th md-progress-linear > ._md-container {
+  height: 3px;
+  top: 0;
+  transition: none;
+}
+md-table.md-table .md-table-progress th md-progress-linear > ._md-container > ._md-bar {
+  height: 3px;
+}
+md-table.md-table md-column.md-column {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+md-table.md-table md-column.md-column.md-sort {
+  cursor: pointer;
+}
+md-table.md-table md-column.md-column md-icon {
+  height: 24px;
+  width: 16px;
+  min-width: 16px;
+  font-size: 16px !important;
+  line-height: 24px !important;
+}
+md-table.md-table md-column.md-column md-icon.md-sort-icon {
+  color: rgba(0, 0, 0, 0.26);
+  opacity: 0;
+  transition: transform 0.25s, opacity 0.25s;
+}
+md-table.md-table md-column.md-column md-icon.md-sort-icon.md-asc {
+  transform: rotate(0deg);
+}
+md-table.md-table md-column.md-column md-icon.md-sort-icon.md-desc {
+  transform: rotate(180deg);
+}
+md-table.md-table md-column.md-column md-icon:not(:first-child) {
+  margin-left: 8px;
+}
+md-table.md-table md-column.md-column md-icon:not(:last-child) {
+  margin-right: 8px;
+}
+md-table.md-table md-column.md-column.md-active,
+md-table.md-table md-column.md-column.md-active md-icon {
+  color: rgba(0, 0, 0, 0.87);
+}
+md-table.md-table md-column.md-column:hover md-icon.md-sort-icon,
+md-table.md-table md-column.md-column.md-active md-icon.md-sort-icon {
+  opacity: 1;
+}
+md-table.md-table md-row.md-row[ng\:repeat].ng-leave,
+md-table.md-table md-row.md-row[ng-repeat].ng-leave,
+md-table.md-table md-row.md-row[x-ng-repeat].ng-leave,
+md-table.md-table md-row.md-row[data-ng-repeat].ng-leave {
+  display: none;
+}
+md-table.md-table.md-row-select md-body.md-body > md-row.md-row {
+  transition: background-color 0.2s;
+}
+md-table.md-table.md-row-select md-body.md-body > md-row.md-row:not([disabled]):hover {
+  background-color: #eeeeee !important;
+}
+md-table.md-table.md-row-select md-body.md-body > md-row.md-row.md-selected {
+  background-color: #f5f5f5;
+}
+md-table.md-table.md-row-select md-cell.md-cell:first-child,
+md-table.md-table.md-row-select md-column.md-column:first-child {
+  width: 20px;
+  padding: 0 0 0 24px;
+}
+md-table.md-table.md-row-select md-cell.md-cell:nth-child(2),
+md-table.md-table.md-row-select md-column.md-column:nth-child(2) {
+  padding: 0 24px;
+}
+md-table.md-table.md-row-select md-cell.md-cell:nth-child(n+3):nth-last-child(n+2),
+md-table.md-table.md-row-select md-column.md-column:nth-child(n+3):nth-last-child(n+2) {
+  padding: 0 56px 0 0;
+}
+md-table.md-table:not(.md-row-select) md-cell.md-cell:first-child,
+md-table.md-table:not(.md-row-select) md-column.md-column:first-child {
+  padding: 0 24px;
+}
+md-table.md-table:not(.md-row-select) md-cell.md-cell:nth-child(n+2):nth-last-child(n+2),
+md-table.md-table:not(.md-row-select) md-column.md-column:nth-child(n+2):nth-last-child(n+2) {
+  padding: 0 56px 0 0;
+}
+md-table.md-table md-cell.md-cell,
+md-table.md-table md-column.md-column {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: left;
+}
+md-table.md-table md-cell.md-cell > *,
+md-table.md-table md-column.md-column > * {
+  vertical-align: middle;
+}
+md-table.md-table md-cell.md-cell:last-child,
+md-table.md-table md-column.md-column:last-child {
+  padding: 0 24px 0 0;
+}
+md-table.md-table md-cell.md-cell.md-clickable,
+md-table.md-table md-column.md-column.md-clickable {
+  cursor: pointer;
+}
+md-table.md-table md-cell.md-cell.md-clickable:focus,
+md-table.md-table md-column.md-column.md-clickable:focus {
+  outline: none;
+}
+md-table.md-table md-cell.md-cell.md-numeric,
+md-table.md-table md-column.md-column.md-numeric {
+  text-align: right;
+}
+md-table.md-table md-cell.md-cell md-checkbox,
+md-table.md-table md-column.md-column md-checkbox {
+  margin: 0;
+  width: 20px;
+}
+md-table.md-table md-cell.md-cell {
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 13px;
+  border-top: 1px rgba(0, 0, 0, 0.12) solid;
+}
+md-table.md-table md-cell.md-cell.md-numeric md-select {
+  -ms-flex-pack: end;
+      justify-content: flex-end;
+}
+md-table.md-table md-cell.md-cell.md-numeric md-select ._md-select-value {
+  -ms-flex: 0 0 auto;
+      flex: 0 0 auto;
+}
+md-table.md-table md-cell.md-cell.md-placeholder {
+  color: rgba(0, 0, 0, 0.26);
+}
+md-table.md-table md-cell.md-cell md-select > ._md-select-value > span._md-select-icon {
+  -ms-flex-pack: end;
+      justify-content: flex-end;
+  color: rgba(0, 0, 0, 0.54);
+  width: 18px;
+  text-align: right;
+}
+md-table.md-table md-cell.md-cell md-select > ._md-select-value > span._md-select-icon:after {
+  transform: scaleY(0.4) scaleX(0.8);
+}

@@ -1,93 +1,58 @@
-angular.module('material.components.table').directive('mdSelect', ['$compile', '$mdUtil', '$parse', function($compile, $mdUtil, $parse) {
+'use strict';
 
-  var CHECKBOX = '<md-checkbox aria-label="Select Row" ng-click="$mdSelect.toggle($event, true)" ng-checked="$mdSelect.isSelected" ng-disabled="$mdSelect.disabled"></md-checkbox>';
+angular.module('material.components.table').directive('mdSelect', ['$compile', '$parse', function($compile, $parse) {
 
+  // empty controller to bind scope properties to
   function Controller() {
+
   }
 
-  function postLink($scope, $element, $attrs, $ctrls) {
-    var match = $attrs.mdSelect.match(/^\s*(\S+)(?:\s+as\s+(\S+))?\s*$/);
+  function postLink(scope, element, attrs, ctrls) {
+    var self = ctrls.shift();
+    var tableCtrl = ctrls.shift();
+    var getId = $parse(attrs.mdSelectId);
 
-    if(!match) {
-      throw 'mdSelect: Invalid expression. Expected an expression in the form of "item (as alias)?". Instead got "' + $attrs.mdSelect + '".\n';
+    self.id = getId(self.model);
+
+    if(tableCtrl.$$rowSelect && self.id) {
+      if(tableCtrl.$$hash.has(self.id)) {
+        var index = tableCtrl.selected.indexOf(tableCtrl.$$hash.get(self.id));
+
+        // if the item is no longer selected remove it
+        if(index === -1) {
+          tableCtrl.$$hash.purge(self.id);
+        }
+
+        // if the item is not a reference to the current model update the reference
+        else if(!tableCtrl.$$hash.equals(self.id, self.model)) {
+          tableCtrl.$$hash.update(self.id, self.model);
+          tableCtrl.selected.splice(index, 1, self.model);
+        }
+
+      } else {
+
+        // check if the item has been selected
+        tableCtrl.selected.some(function (item, index) {
+          if(getId(item) === self.id) {
+            tableCtrl.$$hash.update(self.id, self.model);
+            tableCtrl.selected.splice(index, 1, self.model);
+
+            return true;
+          }
+        });
+      }
     }
 
-    var self       = $ctrls.shift(),
-        row        = $ctrls.shift(),
-        table      = $ctrls.shift(),
-        selectExp  = match[1],
-        alias      = match[2],
-        jqLite     = angular.element,
-        identifier = alias || selectExp,
-        trackById  = parseTrackByExpression($attrs.mdTrackBy),
-        watchers   = {
-          modelChange: function () {
-            self.isSelected = isSelected();
-          }
-        };
-
-    function parseTrackByExpression(trackByEx) {
-      var locals = {};
-      var trackByFn = $parse(trackByEx);
-
-      return function (item) {
-        locals[identifier] = item;
-        return trackByFn($scope, locals);
-      };
-    };
-
-    function isEqual(item) {
-      return self.id ? trackById(item) === self.id : self.item === item;
-    };
-
-    function isSelected() {
-      return table.multiple ? table.selected.some(isEqual) : isEqual(table.selected);
-    };
-
-    function toggleAutoSelect(autoSelect) {
-      self.autoSelect = $mdUtil.parseAttributeBoolean(autoSelect);
-
-      if(self.autoSelect) {
-        $element.addClass('md-auto-select').on('click', self.toggle);
-      } else {
-        $element.removeClass('md-auto-select').off('click', self.toggle);
+    self.isSelected = function () {
+      if(!tableCtrl.$$rowSelect) {
+        return false;
       }
-    };
 
-    function onSelectionChange(isSelected, wasSelected) {
-      if(isSelected) {
-        $element.addClass('md-selected');
-
-        if(!wasSelected) {
-          $scope.$eval(self.onSelect);
-        }
-      } else {
-        $element.removeClass('md-selected');
-
-        if(wasSelected) {
-          $scope.$eval(self.onDeselect);
-        }
+      if(self.id) {
+        return tableCtrl.$$hash.has(self.id);
       }
-    };
 
-    self.enable = function () {
-      jqLite(row.cells(0)).append($compile(CHECKBOX)($scope));
-      toggleAutoSelect($attrs.mdAutoSelect);
-      table.registerModelChangeListener(watchers.modelChange);
-      self.isSelected = isSelected();
-      watchers.autoSelect = $attrs.$observe('mdAutoSelect', toggleAutoSelect);
-      watchers.isSelected = $scope.$watch('$mdSelect.isSelected', onSelectionChange);
-    };
-
-    self.disable = function () {
-      watchers.autoSelect();
-      watchers.isSelected();
-      table.removeModelChangeListener(watchers.modelChange);
-      $element.removeClass('md-selected');
-
-      if(self.autoSelect) {
-        $element.removeClass('md-auto-select').off('click', self.toggle);
-      }
+      return tableCtrl.selected.indexOf(self.model) !== -1;
     };
 
     self.select = function () {
@@ -95,67 +60,151 @@ angular.module('material.components.table').directive('mdSelect', ['$compile', '
         return;
       }
 
-      if(table.multiple) {
-        table.selected.push(self.item);
+      if(tableCtrl.enableMultiSelect()) {
+        tableCtrl.selected.push(self.model);
       } else {
-        table.selected = self.item;
+        tableCtrl.selected.splice(0, tableCtrl.selected.length, self.model);
+      }
+
+      if(angular.isFunction(self.onSelect)) {
+        self.onSelect(self.model);
       }
     };
 
     self.deselect = function () {
-      if(table.multiple) {
-        return table.selected.some(function (item, index, selected) {
-          return isEqual(item) && selected.splice(index, 1);
-        });
+      if(self.disabled) {
+        return;
       }
 
-      if(isEqual(table.selected)) {
-        table.selected = undefined;
+      tableCtrl.selected.splice(tableCtrl.selected.indexOf(self.model), 1);
+
+      if(angular.isFunction(self.onDeselect)) {
+        self.onDeselect(self.model);
       }
     };
 
-    self.toggle = function (event, sync) {
+    self.toggle = function (event) {
       if(event && event.stopPropagation) {
         event.stopPropagation();
       }
 
-      if(sync) {
-        return self.isSelected ? self.deselect() : self.select();
-      }
-
-      $scope.$applyAsync(self.isSelected ? self.deselect() : self.select());
+      return self.isSelected() ? self.deselect() : self.select();
     };
 
-    $attrs.$observe('disabled', function (disabled) {
-      self.disabled = $mdUtil.parseAttributeBoolean(disabled);
-    });
+    function autoSelect() {
+      return attrs.mdAutoSelect === '' || self.autoSelect;
+    }
 
-    $scope.$parent.$watch(selectExp, function (item) {
-      self.id = trackById(item);
-      self.item = item;
+    function createCheckbox() {
+      var checkbox = angular.element('<md-checkbox>').attr({
+        'aria-label': 'Select Row',
+        'ng-click': '$mdSelect.toggle($event)',
+        'ng-checked': '$mdSelect.isSelected()',
+        'ng-disabled': '$mdSelect.disabled'
+      });
 
-      if(alias) {
-        $scope.$parent[alias] = item;
+      return angular.element('<md-cell class="md-cell md-checkbox-cell">').append($compile(checkbox)(scope));
+    }
+
+    function disableSelection() {
+      Array.prototype.some.call(element.children(), function (child) {
+        return child.classList.contains('md-checkbox-cell') && element[0].removeChild(child);
+      });
+
+      if(autoSelect()) {
+        element.off('click', toggle);
+      }
+    }
+
+    function enableSelection() {
+      element.prepend(createCheckbox());
+
+      if(autoSelect()) {
+        element.on('click', toggle);
+      }
+    }
+
+    function enableRowSelection() {
+      return tableCtrl.$$rowSelect;
+    }
+
+    function onSelectChange(selected) {
+      if(!self.id) {
+        return;
       }
 
-      self.isSelected = isSelected();
+      if(tableCtrl.$$hash.has(self.id)) {
+        // check if the item has been deselected
+        if(selected.indexOf(tableCtrl.$$hash.get(self.id)) === -1) {
+          tableCtrl.$$hash.purge(self.id);
+        }
+
+        return;
+      }
+
+      // check if the item has been selected
+      if(selected.indexOf(self.model) !== -1) {
+        tableCtrl.$$hash.update(self.id, self.model);
+      }
+    }
+
+    function toggle(event) {
+      scope.$applyAsync(function () {
+        self.toggle(event);
+      });
+    }
+
+    scope.$watch(enableRowSelection, function (enable) {
+      if(enable) {
+        enableSelection();
+      } else {
+        disableSelection();
+      }
     });
 
-    $scope.$on('$destroy', function () {
-      table.removeModelChangeListener(watchers.modelChange);
+    scope.$watch(autoSelect, function (newValue, oldValue) {
+      if(newValue === oldValue) {
+        return;
+      }
+
+      if(tableCtrl.$$rowSelect && newValue) {
+        element.on('click', toggle);
+      } else {
+        element.off('click', toggle);
+      }
     });
-  };
+
+    scope.$watch(self.isSelected, function (isSelected) {
+      return isSelected ? element.addClass('md-selected') : element.removeClass('md-selected');
+    });
+
+    scope.$watch(tableCtrl.enableMultiSelect, function (multiple) {
+      if(tableCtrl.$$rowSelect && !multiple) {
+        // remove all but the first selected item
+        tableCtrl.selected.splice(1);
+      }
+    });
+
+    tableCtrl.registerModelChangeListener(onSelectChange);
+
+    element.on('$destroy', function () {
+      tableCtrl.removeModelChangeListener(onSelectChange);
+    });
+  }
 
   return {
     bindToController: true,
     controller: Controller,
     controllerAs: '$mdSelect',
     link: postLink,
-    require: ['mdSelect', 'mdRow', '^^mdTable'],
+    require: ['mdSelect', '^^mdTable'],
     restrict: 'A',
     scope: {
-      onSelect: '&?mdOnSelect',
-      onDeselect: '&?mdOnDeselect'
+      model: '=mdSelect',
+      disabled: '=ngDisabled',
+      onSelect: '=?mdOnSelect',
+      onDeselect: '=?mdOnDeselect',
+      autoSelect: '=mdAutoSelect'
     }
   };
 }]);

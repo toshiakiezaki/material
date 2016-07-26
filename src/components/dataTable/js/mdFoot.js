@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('material.components.table').directive('mdBody', function() {
+angular.module('material.components.table').directive('mdFoot', function() {
 
   function compile(tElement) {
-    tElement.addClass('md-body');
+    tElement.addClass('md-foot');
   }
 
   return {

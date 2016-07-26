@@ -1,107 +1,131 @@
+'use strict';
+
 angular.module('material.components.table').directive('mdHead', ['$compile', function($compile) {
 
-  function controller() {
+  function compile(tElement) {
+    tElement.addClass('md-head');
+    return postLink;
   }
 
-  function link($scope, $element, $attrs, $ctrls) {
-    var self          = $ctrls[0],
-        table         = $ctrls[1],
-        find          = table.find,
-        item          = table.item,
-        jqLite        = angular.element,
-        watchListener;
+  // empty controller to be bind scope properties to
+  function Controller() {
 
-    var CHECKBOX = '<md-checkbox aria-label="Select All" ng-click="$mdHead.toggleAll()" ng-checked="$mdHead.allSelected()" ng-disabled="!$mdHead.getSelectableRows().length"></md-checkbox>';
+  }
 
-    function isMultiple() {
-      return table.multiple;
-    };
+  function postLink(scope, element, attrs, tableCtrl) {
+    // because scope.$watch is unpredictable
+    var oldValue = new Array(2);
 
-    function appendCheckbox() {
-      jqLite(self.rows(-1).children[0]).append($compile(CHECKBOX)($scope));
-    };
-
-    function removeCheckbox() {
-      var cell = find(self.rows(-1).children, function (cell) {
-        return cell.classList.contains('md-checkbox-cell');
-      });
-
-      if(cell && cell.firstChild) {
-        cell.removeChild(cell.firstChild);
+    function addCheckboxColumn() {
+      if (!element.hasClass('md-table-progress')) {
+        element.children().prepend('<md-column class="md-column md-checkbox-column">');
       }
-    };
+    }
+
+    function attatchCheckbox() {
+      if (!element.hasClass('md-table-progress')) {
+        element.prop('lastElementChild').firstElementChild.appendChild($compile(createCheckBox())(scope)[0]);
+      }
+    }
+
+    function createCheckBox() {
+      return angular.element('<md-checkbox>').attr({
+        'aria-label': 'Select All',
+        'ng-click': 'toggleAll()',
+        'ng-checked': 'allSelected()',
+        'ng-disabled': '!getSelectableRows().length'
+      });
+    }
+
+    function detachCheckbox() {
+      var cell = element.prop('lastElementChild').firstElementChild;
+
+      if(cell.classList.contains('md-checkbox-column')) {
+        angular.element(cell).empty();
+      }
+    }
+
+    function enableRowSelection() {
+      return tableCtrl.$$rowSelect;
+    }
 
     function mdSelectCtrl(row) {
       return angular.element(row).controller('mdSelect');
-    };
+    }
 
-    self.rows = function (index) {
-      return isNaN(index) ? $element.children() : item($element.children(), index);
-    };
+    function removeCheckboxColumn() {
+      Array.prototype.some.call(element.find('md-column'), function (cell) {
+        return cell.classList.contains('md-checkbox-column') && cell.remove();
+      });
+    }
 
-    self.allSelected = function () {
-      var rows = self.getSelectableRows();
+    scope.allSelected = function () {
+      var rows = scope.getSelectableRows();
 
       return rows.length && rows.every(function (row) {
-        return row.isSelected;
+        return row.isSelected();
       });
     };
 
-    self.getSelectableRows = function () {
-      var rows = table.tBodies.reduce(function (rows, body) {
-        return rows.concat(Array.prototype.filter.call(body.children, function (row) {
-          return !row.classList.contains('ng-leave');
-        }));
-      }, []);
-
-      return rows.map(mdSelectCtrl).filter(function (row) {
-        return row && !row.disabled;
+    scope.getSelectableRows = function () {
+      return tableCtrl.getBodyRows().map(mdSelectCtrl).filter(function (ctrl) {
+        return ctrl && !ctrl.disabled;
       });
     };
 
-    self.selectAll = function () {
-      self.getSelectableRows().forEach(function (row) {
-        if(!row.isSelected) {
-          row.select();
+    scope.selectAll = function () {
+      tableCtrl.getBodyRows().map(mdSelectCtrl).forEach(function (ctrl) {
+        if(ctrl && !ctrl.isSelected()) {
+          ctrl.select();
         }
       });
     };
 
-    self.unSelectAll = function () {
-      self.getSelectableRows().forEach(function (row) {
-        row.deselect();
+    scope.toggleAll = function () {
+      return scope.allSelected() ? scope.unSelectAll() : scope.selectAll();
+    };
+
+    scope.unSelectAll = function () {
+      tableCtrl.getBodyRows().map(mdSelectCtrl).forEach(function (ctrl) {
+        if(ctrl && ctrl.isSelected()) {
+          ctrl.deselect();
+        }
       });
     };
 
-    self.toggleAll = function () {
-      return self.allSelected() ? self.unSelectAll() : self.selectAll();
-    };
+    scope.$watchGroup([enableRowSelection, tableCtrl.enableMultiSelect], function (newValue) {
+      if(newValue[0] !== oldValue[0]) {
+        if(newValue[0]) {
+          addCheckboxColumn();
 
-    self.onEnableSelection = function () {
-      if(watchListener) {
-        return;
+          if(newValue[1]) {
+            attatchCheckbox();
+          }
+        } else {
+          removeCheckboxColumn();
+        }
+      } else if(newValue[0] && newValue[1] !== oldValue[1]) {
+        if(newValue[1]) {
+          attatchCheckbox();
+        } else {
+          detachCheckbox();
+        }
       }
 
-      watchListener = $scope.$watch(isMultiple, function (multiple) {
-        if(multiple) {
-          appendCheckbox();
-        } else {
-          removeCheckbox();
-        }
-      });
-    };
-
-    self.onDisableSelection = function () {
-      watchListener = watchListener && watchListener();
-    };
-  };
+      angular.copy(newValue, oldValue);
+    });
+  }
 
   return {
     bindToController: true,
-    controller: controller,
+    compile: compile,
+    controller: Controller,
     controllerAs: '$mdHead',
-    link: link,
-    require: ['mdHead', '^^mdTable'],
-    restrict: 'E'
+    require: '^^mdTable',
+    restrict: 'E',
+    scope: {
+      order: '=?mdOrder',
+      onReorder: '=?mdOnReorder'
+    }
   };
 }]);

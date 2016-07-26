@@ -1,44 +1,71 @@
-angular.module('material.components.table').directive('mdCell', ['$compile', '$mdUtil', function($compile, $mdUtil) {
+'use strict';
 
-  function controller() {
+angular.module('material.components.table').directive('mdCell', function() {
+
+  function compile(tElement) {
+    var select = tElement.find('md-select');
+
+    if(select.length) {
+      select.addClass('md-table-select').attr('md-container-class', 'md-table-select');
+    }
+
+    tElement.addClass('md-cell');
+
+    return postLink;
   }
 
-  function link($scope, $element, $attrs, $ctrls) {
-    var self       = $ctrls[0],
-        table      = $ctrls[1],
-        search     = table.search,
-        jqLite     = angular.element,
-        alignments = ['left', 'right', 'center', 'justify'];
+  // empty controller to be bind properties to in postLink function
+  function Controller() {
 
-    Object.defineProperty(self, 'index', {
-      get: function () {
-        var nodeList = Array.prototype.slice.call($element.parent().children());
-        return nodeList.indexOf($element[0]);
+  }
+
+  function postLink(scope, element, attrs, ctrls) {
+    var select = element.find('md-select');
+    var cellCtrl = ctrls.shift();
+    var tableCtrl = ctrls.shift();
+
+    if(attrs.ngClick) {
+      element.addClass('md-clickable');
+    }
+
+    if(select.length) {
+      select.on('click', function (event) {
+        event.stopPropagation();
+      });
+
+      element.addClass('md-clickable').on('click', function (event) {
+        event.stopPropagation();
+        select[0].click();
+      });
+    }
+
+    cellCtrl.getTable = tableCtrl.getElement;
+
+    function getColumn() {
+      return tableCtrl.$$columns[getIndex()];
+    }
+
+    function getIndex() {
+      return Array.prototype.indexOf.call(element.parent().children(), element[0]);
+    }
+
+    scope.$watch(getColumn, function (column) {
+      if(!column) {
+        return;
       }
-    });
 
-    self.getAlignment = function () {
-      return search(table.tHead.children, function (row) {
-        return jqLite(row.children[self.index]).data('align');
-      });
-    };
-
-    $scope.$watch(self.getAlignment, function (value) {
-      alignments.forEach(function (alignment) {
-        if(value === alignment) {
-          $element.addClass('md-align-' + alignment);
-        } else {
-          $element.removeClass('md-align-' + alignment);
-        }
-      });
+      if(column.numeric) {
+        element.addClass('md-numeric');
+      } else {
+        element.removeClass('md-numeric');
+      }
     });
   }
 
   return {
-    controller: controller,
-    controllerAs: '$mdCell',
-    link: link,
+    controller: Controller,
+    compile: compile,
     require: ['mdCell', '^^mdTable'],
-    restrict: 'E',
+    restrict: 'E'
   };
-}]);
+});

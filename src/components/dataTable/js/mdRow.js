@@ -1,56 +1,47 @@
+'use strict';
+
 angular.module('material.components.table').directive('mdRow', function() {
 
-  function controller() {
-  };
+  function compile(tElement) {
+    tElement.addClass('md-row');
+    return postLink;
+  }
 
-  function link($scope, $element, $attrs, $ctrls) {
-    var self   = $ctrls[0],
-        select = $ctrls[1],
-        head   = $ctrls[2],
-        table  = $ctrls[3],
-        item   = table.item;
+  function postLink(scope, element, attrs, tableCtrl) {
+    function enableRowSelection() {
+      return tableCtrl.$$rowSelect;
+    }
 
-    function onEnableSelection() {
-      $element.prepend(angular.element('<md-cell>').addClass('md-checkbox-cell'));
+    function isBodyRow() {
+      return tableCtrl.getBodyRows().indexOf(element[0]) !== -1;
+    }
 
-      if(head) {
-        head.onEnableSelection();
-      } else if(select) {
-        select.enable();
-      }
-    };
+    function isChild(node) {
+      return element[0].contains(node[0]);
+    }
 
-    function onDisableSelection() {
-      if(head) {
-        head.onDisableSelection();
-      } else if(select) {
-        select.disable();
-      }
+    if(isBodyRow()) {
+      var cell = angular.element('<md-cell class="md-cell">');
 
-      var cell = table.find(self.cells(), function (cell) {
-        return cell.classList.contains('md-checkbox-cell');
+      scope.$watch(enableRowSelection, function (enable) {
+        // if a row is not selectable, prepend an empty cell to it
+        if(enable && !attrs.mdSelect) {
+          if(!isChild(cell)) {
+            element.prepend(cell);
+          }
+          return;
+        }
+
+        if(isChild(cell)) {
+          cell.remove();
+        }
       });
-
-      return cell && cell.parentNode.removeChild(cell);
-    };
-
-    self.cells = function (index) {
-      return isNaN(index) ? $element[0].children : item($element[0].children, index);
-    };
-
-    $scope.$watch(table.enableSelection, function (enable) {
-      if(enable) {
-        onEnableSelection();
-      } else {
-        onDisableSelection();
-      }
-    });
-  };
+    }
+  }
 
   return {
-    controller: controller,
-    link: link,
-    require: ['mdRow', '?mdSelect', '?^^mdHead', '^^mdTable'],
+    compile: compile,
+    require: '^^mdTable',
     restrict: 'E'
   };
 });

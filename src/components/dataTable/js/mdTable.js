@@ -1,66 +1,156 @@
+'use strict';
+
 angular.module('material.components.table').directive('mdTable', function() {
 
-  function compile(tElement) {
-    tElement.addClass('md-table');
+  function Hash() {
+    var keys = {};
+
+    this.equals = function (key, item) {
+      return keys[key] === item;
+    };
+
+    this.get = function (key) {
+      return keys[key];
+    };
+
+    this.has = function (key) {
+      return keys.hasOwnProperty(key);
+    };
+
+    this.purge = function (key) {
+      delete keys[key];
+    };
+
+    this.update = function (key, item) {
+      keys[key] = item;
+    };
   }
 
-  function find(set, callback) {
-    for(var i = 0; i < set.length; i++) {
-      if(callback(set[i])) {
-        return set[i];
+//ok
+  function compile(tElement, tAttrs) {
+    tElement.addClass('md-table');
+
+    if(tAttrs.hasOwnProperty('mdProgress')) {
+      var body = tElement.find('md-body')[0];
+      var progress = angular.element('<thead class="md-table-progress">');
+
+      if(body) {
+        tElement[0].insertBefore(progress[0], body);
       }
     }
-  };
+  }
 
-  function item(set, index) {
-    if(!isFinite(index)) {
-      return undefined;
-    }
-
-    if(index < 0) {
-      index += set.length;
-    }
-
-    return set[index];
-  };
-
-  function search(set, callback) {
-    for(var i = 0; i < set.length; i++) {
-      var result = callback(set[i]);
-
-      if(angular.isDefined(result)) {
-        return result;
-      }
-    }
-  };
-
-  function controller($attrs, $element, $scope, $mdUtil) {
+  function Controller($attrs, $element, $q, $scope) {
     var self = this;
+    var queue = [];
     var watchListener;
     var modelChangeListeners = [];
 
-    self.find = find;
-    self.item = item;
-    self.search = search;
+    self.$$hash = new Hash();
+    self.$$columns = {};
 
-    Object.defineProperty(self, 'tBodies', {
-      get: function () {
-        return new Array($element.find('md-body')[0]);
+//ok
+    function enableRowSelection() {
+      self.$$rowSelect = true;
+
+      watchListener = $scope.$watchCollection('$mdTable.selected', function (selected) {
+        modelChangeListeners.forEach(function (listener) {
+          listener(selected);
+        });
+      });
+
+      $element.addClass('md-row-select');
+    }
+
+//ok
+    function disableRowSelection() {
+      self.$$rowSelect = false;
+
+      if(angular.isFunction(watchListener)) {
+        watchListener();
       }
-    });
 
-    Object.defineProperty(self, 'tHead', {
-      get: function () {
-        return $element.find("md-head")[0];
+      $element.removeClass('md-row-select');
+    }
+
+    function resolvePromises() {
+      if(!queue.length) {
+        return $scope.$applyAsync();
       }
-    });
 
-    self.enableSelection = function () {
-      return $mdUtil.parseAttributeBoolean($attrs.mdRowSelect);
+      queue[0]['finally'](function () {
+        queue.shift();
+        resolvePromises();
+      });
+    }
+
+//ok
+    function rowSelect() {
+      return $attrs.mdRowSelect === '' || self.rowSelect;
+    }
+
+//ok
+    function validateModel() {
+      if(!self.selected) {
+        return console.error('Row selection: ngModel is not defined.');
+      }
+
+      if(!angular.isArray(self.selected)) {
+        return console.error('Row selection: Expected an array. Recived ' + typeof self.selected + '.');
+      }
+
+      return true;
+    }
+
+    self.columnCount = function () {
+      return self.getRows($element[0]).reduce(function (count, row) {
+        return row.children.length > count ? row.children.length : count;
+      }, 0);
+    };
+
+//ok
+    self.getRows = function (element) {
+      return Array.prototype.filter.call(element.getElementsByTagName('md-row'), function (row) {
+        return !row.classList.contains('ng-leave');
+      });
+    };
+
+//ok
+    self.getBodyRows = function () {
+      return Array.prototype.reduce.call($element[0].getElementsByTagName('md-body'), function (result, tbody) {
+        return result.concat(self.getRows(tbody));
+      }, []);
+    };
+
+    self.getElement = function () {
+      return $element;
+    };
+
+    self.getHeaderRows = function () {
+      return self.getRows($element.prop('tHead'));
+    };
+
+//ok
+    self.enableMultiSelect = function () {
+      return $attrs.multiple === '' || $scope.$eval($attrs.multiple);
+    };
+
+    self.waitingOnPromise = function () {
+      return !!queue.length;
+    };
+
+    self.queuePromise = function (promise) {
+      if(!promise) {
+        return;
+      }
+
+      if(queue.push(angular.isArray(promise) ? $q.all(promise) : $q.when(promise)) === 1) {
+        resolvePromises();
+      }
     };
 
     self.registerModelChangeListener = function (listener) {
-      return modelChangeListeners.push(listener) && listener;
+      modelChangeListeners.push(listener);
     };
 
     self.removeModelChangeListener = function (listener) {
@@ -71,53 +161,31 @@ angular.module('material.components.table').directive('mdTable', function() {
       }
     };
 
-    function onEnableSelection() {
-      watchListener = $scope.$watchCollection('$mdTable.selected', function (selected) {
-        modelChangeListeners.forEach(function (listener) {
-          listener(selected);
-        });
-      });
+    if($attrs.hasOwnProperty('mdProgress')) {
+      $scope.$watch('$mdTable.progress', self.queuePromise);
+    }
 
-      $element.addClass('md-select');
-    };
-
-    function onDisableSelection() {
-      if(angular.isFunction(watchListener)) {
-        watchListener();
-      }
-
-      $element.removeClass('md-select');
-    };
-
-    $attrs.$observe('multiple', function (multiple) {
-      self.multiple = $mdUtil.parseAttributeBoolean(multiple);
-
-      if(self.multiple) {
-        if(!angular.isArray(self.selected)) {
-          self.selected = self.selected ? [self.selected] : [];
-        }
-      } else if(angular.isArray(self.selected)) {
-        self.selected = self.selected.shift();
-      }
-    });
-
-    $attrs.$observe('mdRowSelect', function () {
-      if(self.enableSelection()) {
-        onEnableSelection();
+    $scope.$watch(rowSelect, function (enable) {
+      if(enable && !!validateModel()) {
+        enableRowSelection();
       } else {
-        onDisableSelection();
+        disableRowSelection();
       }
     });
   }
 
+  Controller.$inject = ['$attrs', '$element', '$q', '$scope'];
+
   return {
     bindToController: true,
     compile: compile,
-    controller: controller,
+    controller: Controller,
     controllerAs: '$mdTable',
     restrict: 'E',
     scope: {
-      selected: '=?mdSelected'
+      progress: '=?mdProgress',
+      selected: '=ngModel',
+      rowSelect: '=mdRowSelect'
     }
   };
 });
