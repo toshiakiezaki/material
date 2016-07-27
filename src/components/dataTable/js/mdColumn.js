@@ -12,7 +12,7 @@ angular.module('material.components.table').directive('mdColumn', ['$compile', '
     var tableCtrl = ctrls.shift();
 
     function attachSortIcon() {
-      var sortIcon = angular.element('<md-icon md-svg-icon="arrow-up.svg">');
+      var sortIcon = angular.element('<md-icon class="material-icons">arrow_upward</md-icon>');
 
       $compile(sortIcon.addClass('md-sort-icon').attr('ng-class', 'getDirection()'))(scope);
 
