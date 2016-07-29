@@ -26,7 +26,6 @@ angular.module('material.components.table').directive('mdTable', function() {
     };
   }
 
-//ok
   function compile(tElement, tAttrs) {
     tElement.addClass('md-table');
 
@@ -49,7 +48,6 @@ angular.module('material.components.table').directive('mdTable', function() {
     self.$$hash = new Hash();
     self.$$columns = {};
 
-//ok
     function enableRowSelection() {
       self.$$rowSelect = true;
 
@@ -62,7 +60,6 @@ angular.module('material.components.table').directive('mdTable', function() {
       $element.addClass('md-row-select');
     }
 
-//ok
     function disableRowSelection() {
       self.$$rowSelect = false;
 
@@ -84,12 +81,10 @@ angular.module('material.components.table').directive('mdTable', function() {
       });
     }
 
-//ok
     function rowSelect() {
       return $attrs.mdRowSelect === '' || self.rowSelect;
     }
 
-//ok
     function validateModel() {
       if(!self.selected) {
         return console.error('Row selection: ngModel is not defined.');
@@ -108,18 +103,24 @@ angular.module('material.components.table').directive('mdTable', function() {
       }, 0);
     };
 
-//ok
     self.getRows = function (element) {
-      return Array.prototype.filter.call(element.getElementsByTagName('md-row'), function (row) {
+      return Array.prototype.filter.call($element[0].getElementsByTagName('md-row'), function (row) {
         return !row.classList.contains('ng-leave');
       });
     };
 
-//ok
     self.getBodyRows = function () {
       return Array.prototype.reduce.call($element[0].getElementsByTagName('md-body'), function (result, tbody) {
         return result.concat(self.getRows(tbody));
       }, []);
+    };
+
+    self.getTableData = function () {
+      return $attrs.mdTableData === '' ? [] : self.tableData;
+    };
+
+    self.getSelectedRows = function () {
+      return $attrs.ngModel === '' ? [] : self.selected;
     };
 
     self.getElement = function () {
@@ -130,7 +131,6 @@ angular.module('material.components.table').directive('mdTable', function() {
       return self.getRows($element.prop('tHead'));
     };
 
-//ok
     self.enableMultiSelect = function () {
       return $attrs.multiple === '' || $scope.$eval($attrs.multiple);
     };
@@ -185,7 +185,8 @@ angular.module('material.components.table').directive('mdTable', function() {
     scope: {
       progress: '=?mdProgress',
       selected: '=ngModel',
-      rowSelect: '=mdRowSelect'
+      rowSelect: '=mdRowSelect',
+      tableData: '=mdTableData'
     }
   };
 });

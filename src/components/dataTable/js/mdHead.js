@@ -33,6 +33,7 @@ angular.module('material.components.table').directive('mdHead', ['$compile', fun
         'aria-label': 'Select All',
         'ng-click': 'toggleAll()',
         'ng-checked': 'allSelected()',
+        'md-indeterminate': 'indeterminateSelect()',
         'ng-disabled': '!getSelectableRows().length'
       });
     }
@@ -65,6 +66,10 @@ angular.module('material.components.table').directive('mdHead', ['$compile', fun
       return rows.length && rows.every(function (row) {
         return row.isSelected();
       });
+    };
+
+    scope.indeterminateSelect = function () {
+      return tableCtrl.getSelectedRows().length > 0 && (tableCtrl.getTableData().length != tableCtrl.getSelectedRows().length);
     };
 
     scope.getSelectableRows = function () {
