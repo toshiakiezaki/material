@@ -19,9 +19,9 @@ angular.module('demoApp', ['ngMaterial'])
     autoSelect: true,
     decapitate: false,
     largeEditDialog: false,
-    boundaryLinks: false,
-    limitSelect: true,
-    pageSelect: true
+    boundaryLinks: true,
+    limitSelect: false,
+    pageSelect: false
   };
 
   $scope.query = {
@@ -165,10 +165,6 @@ angular.module('demoApp', ['ngMaterial'])
         input.$setValidity('test', input.$modelValue !== 'test');
       });
     });
-  };
-
-  $scope.toggleLimitOptions = function () {
-    $scope.limitOptions = $scope.limitOptions ? undefined : [5, 10, 15];
   };
 
   $scope.getTypes = function () {

@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('md-table-pagination.html', []).run(['$templateCache', function($templateCache) {
-  $templateCache.put('md-table-pagination.html',
+angular.module('md-pagination.html', []).run(['$templateCache', function($templateCache) {
+  $templateCache.put('md-pagination.html',
     '<div class="page-select" ng-if="$pagination.showPageSelect()">\n' +
     '  <div class="label">{{$pagination.label.page}}</div>\n' +
     '\n' +
@@ -12,10 +12,10 @@ angular.module('md-table-pagination.html', []).run(['$templateCache', function($
     '  </md-select>\n' +
     '</div>\n' +
     '\n' +
-    '<div class="limit-select" ng-if="$pagination.limitOptions">\n' +
+    '<div class="limit-select" ng-if="$pagination.showLimitSelect()">\n' +
     '  <div class="label">{{$pagination.label.rowsPerPage}}</div>\n' +
     '\n' +
-    '  <md-select class="md-table-select" ng-model="$pagination.limit" md-container-class="md-pagination-select" ng-disabled="$pagination.disabled" aria-label="Rows" placeholder="{{ $pagination.limitOptions[0] }}">\n' +
+    '  <md-select class="md-table-select" ng-model="$pagination.limit" md-container-class="md-pagination-select" ng-disabled="$pagination.disabled" aria-label="Rows" placeholder="{{ $pagination.limit }}">\n' +
     '    <md-option ng-repeat="option in $pagination.limitOptions" ng-value="option.value ? $pagination.eval(option.value) : option">{{::option.label ? option.label : option}}</md-option>\n' +
     '  </md-select>\n' +
     '</div>\n' +
@@ -50,4 +50,4 @@ angular.module('md-table-progress.html', []).run(['$templateCache', function($te
     '</tr>');
 }]);
 
-angular.module('md.table.templates', ['md-table-pagination.html', 'md-table-progress.html']);
+angular.module('md.table.templates', ['md-pagination.html', 'md-table-progress.html']);

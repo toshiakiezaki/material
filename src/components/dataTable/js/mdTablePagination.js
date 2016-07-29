@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('material.components.table').directive('mdTablePagination', function() {
+angular.module('material.components.table').directive('mdPagination', function() {
 
   function compile(tElement) {
-    tElement.addClass('md-table-pagination');
+    tElement.addClass('md-pagination');
   }
 
   function Controller($attrs, $mdUtil, $scope) {
@@ -13,6 +13,8 @@ angular.module('material.components.table').directive('mdTablePagination', funct
       rowsPerPage: 'Rows per page:',
       of: 'of'
     };
+
+    self.limit = self.limitOptions[0] ? self.limitOptions[0] : 5;
 
     self.label = angular.copy(defaultLabel);
 
@@ -80,6 +82,10 @@ angular.module('material.components.table').directive('mdTablePagination', funct
       return $attrs.mdPageSelect === '' || self.pageSelect;
     };
 
+    self.showLimitSelect = function () {
+      return $attrs.mdLimitSelect === '' || self.limitSelect;
+    };
+
     $scope.$watch('$pagination.limit', function (newValue, oldValue) {
       if(isNaN(newValue) || isNaN(oldValue) || newValue === oldValue) {
         return;
@@ -111,6 +117,7 @@ angular.module('material.components.table').directive('mdTablePagination', funct
     bindToController: {
       boundaryLinks: '=?mdBoundaryLinks',
       disabled: '=ngDisabled',
+      limitSelect: '=mdLimitSelect',
       limit: '=mdLimit',
       page: '=mdPage',
       pageSelect: '=?mdPageSelect',
@@ -122,7 +129,7 @@ angular.module('material.components.table').directive('mdTablePagination', funct
     controller: Controller,
     controllerAs: '$pagination',
     restrict: 'E',
-    templateUrl: 'md-table-pagination.html'
+    templateUrl: 'md-pagination.html'
   };
 });
 

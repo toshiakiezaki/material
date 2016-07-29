@@ -9,7 +9,7 @@
       <md-checkbox ng-model="options.decapitate">Decapitate</md-checkbox>
       <md-checkbox ng-model="options.largeEditDialog">Lard Edit Dialogs</md-checkbox>
       <md-checkbox ng-model="options.boundaryLinks">Pagination Boundary Links</md-checkbox>
-      <md-checkbox ng-model="options.limitSelect" ng-click="toggleLimitOptions()">Pagination Limit Select</md-checkbox>
+      <md-checkbox ng-model="options.limitSelect">Pagination Limit Select</md-checkbox>
       <md-checkbox ng-model="options.pageSelect">Pagination Page Select</md-checkbox>
     </div>
   </md-card>
@@ -73,7 +73,6 @@
         </md-body>
       </md-table>
     </md-table-container>
-
-    <md-table-pagination md-limit="query.limit" md-limit-options="limitOptions" md-page="query.page" md-total="{{desserts.count}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-table-pagination>
+    <md-pagination md-limit-select="options.limitSelect" md-limit-options="limitOptions" md-limit="query.limit" md-page="query.page" md-total="{{desserts.count}}" md-page-select="options.pageSelect" md-boundary-links="options.boundaryLinks" md-on-paginate="logPagination"></md-pagination>
   </md-card>
 </md-content>
