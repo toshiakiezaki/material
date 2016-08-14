@@ -1,6 +1,4 @@
-var DocsApp = angular.module('docsApp', [ 'angularytics', 'ngRoute', 'ngMessages', 'ngMaterial' ])
-
-.config([
+angular.module('docsApp', [ 'angularytics', 'ngRoute', 'ngMessages', 'ngMaterial' ], [
   'SERVICES',
   'COMPONENTS',
   'DEMOS',
@@ -11,6 +9,7 @@ var DocsApp = angular.module('docsApp', [ 'angularytics', 'ngRoute', 'ngMessages
   '$mdIconProvider',
 function(SERVICES, COMPONENTS, DEMOS, PAGES,
     $routeProvider, $locationProvider, $mdThemingProvider, $mdIconProvider) {
+
   $locationProvider.html5Mode(true);
 
   $routeProvider
@@ -307,7 +306,7 @@ function(SERVICES, COMPONENTS, DEMOS, PAGES, $location, $rootScope, $http, $wind
         url: 'contributors',
         type: 'link'
       } );
-      
+
   sections.push({
     name: 'License',
     url:  'license',
@@ -502,22 +501,44 @@ function(SERVICES, COMPONENTS, DEMOS, PAGES, $location, $rootScope, $http, $wind
             return controller.isOpen($scope.section);
           },
           function (open) {
-            var $ul = $element.find('ul');
+            // We must run this in a next tick so that the getTargetHeight function is correct
+            $mdUtil.nextTick(function() {
+              var $ul = $element.find('ul');
+              var $li = $ul[0].querySelector('a.active');
+              var docsMenuContent = document.querySelector('.docs-menu').parentNode;
+              var targetHeight = open ? getTargetHeight() : 0;
 
-            var targetHeight = open ? getTargetHeight() : 0;
-            $timeout(function () {
-              $ul.css({height: targetHeight + 'px'});
-            }, 0, false);
+              $timeout(function () {
+                // Set the height of the list
+                $ul.css({height: targetHeight + 'px'});
 
-            function getTargetHeight() {
-              var targetHeight;
-              $ul.addClass('no-transition');
-              $ul.css('height', '');
-              targetHeight = $ul.prop('clientHeight');
-              $ul.css('height', 0);
-              $ul.removeClass('no-transition');
-              return targetHeight;
-            }
+                // If we are open and the user has not scrolled the content div; scroll the active
+                // list item into view.
+                if (open && $li && $ul[0].scrollTop === 0) {
+                  $timeout(function() {
+                    var activeHeight = $li.scrollHeight;
+                    var activeOffset = $li.offsetTop;
+                    var parentOffset = $li.offsetParent.offsetTop;
+
+                    // Reduce it a bit (2 list items' height worth) so it doesn't touch the nav
+                    var negativeOffset = activeHeight * 2;
+                    var newScrollTop = activeOffset + parentOffset - negativeOffset;
+
+                    $mdUtil.animateScrollTo(docsMenuContent, newScrollTop);
+                  }, 350, false);
+                }
+              }, 0, false);
+
+              function getTargetHeight() {
+                var targetHeight;
+                $ul.addClass('no-transition');
+                $ul.css('height', '');
+                targetHeight = $ul.prop('clientHeight');
+                $ul.css('height', 0);
+                $ul.removeClass('no-transition');
+                return targetHeight;
+              }
+            }, false);
           }
         );
       });
@@ -780,15 +801,15 @@ function($rootScope, $scope, component, demos, $templateRequest) {
       if (!restrict.element && restrict.attribute) {
         return '[' + str + ']';
       }
-      
+
       // If it is restricted to elements and isn't a service
       if (restrict.element && str.indexOf('-') > -1) {
         return '<' + str + '>';
       }
-      
+
       // TODO: Handle class/comment restrictions if we ever have any to document
     }
-    
+
     // Just return the original string if we don't know what to do with it
     return str;
   };

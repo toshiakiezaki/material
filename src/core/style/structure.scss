@@ -15,8 +15,8 @@ body {
   padding: 10px;
 }
 
-a._md-no-style,
-button._md-no-style {
+a.md-no-style,
+button.md-no-style {
   font-weight: normal;
   background-color: inherit;
   text-align: left;
@@ -66,7 +66,7 @@ input {
   }
 }
 
-._md-visually-hidden {
+.md-visually-hidden {
   border: 0;
   clip: rect(0 0 0 0);
   height: 1px;
@@ -182,9 +182,9 @@ input {
 }
 
 // Add a class to help reduce flicker
-// @see issue #7078
+// @see issue #7078 and #8649
 .md-no-flicker {
-  -webkit-transform: translateX(0);
+  -webkit-filter: blur(0px);
 }
 
 @media (min-width: $layout-breakpoint-sm) {
