@@ -8,12 +8,13 @@ $progress-circular-indeterminate-duration: 2.9s !default;
 // Used to avoid unnecessary layout
 md-progress-circular {
     position: relative;
+    display: block;
 
     &._md-progress-circular-disabled {
         visibility: hidden;
     }
 
-    &._md-mode-indeterminate svg {
+    &.md-mode-indeterminate svg {
         animation: indeterminate-rotate $progress-circular-indeterminate-duration linear infinite;
     }
 

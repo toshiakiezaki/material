@@ -20,6 +20,9 @@ angular
  * @description
  * The `$mdSticky`service provides a mixin to make elements sticky.
  *
+ * Whenever the current browser supports stickiness natively, the `$mdSticky` service will just
+ * use the native browser stickiness.
+ *
  * By default the `$mdSticky` service compiles the cloned element, when not specified through the `elementClone`
  * parameter, in the same scope as the actual element lives.
  *
@@ -128,7 +131,7 @@ function MdSticky($mdConstant, $$rAF, $mdUtil, $compile) {
      ***************/
     // Add an element and its sticky clone to this content's sticky collection
     function add(element, stickyClone) {
-      stickyClone.addClass('_md-sticky-clone');
+      stickyClone.addClass('md-sticky-clone');
 
       var item = {
         element: element,

@@ -1,3 +1,6 @@
+(function() {
+'use strict';
+
 angular.module('panelDemo', ['ngMaterial'])
     .controller('BasicDemoCtrl', BasicDemoCtrl)
     .controller('PanelDialogCtrl', PanelDialogCtrl);
@@ -92,8 +95,11 @@ function PanelDialogCtrl(mdPanelRef) {
 
 
 PanelDialogCtrl.prototype.closeDialog = function() {
-  this._mdPanelRef && this._mdPanelRef.close().then(function() {
+  var panelRef = this._mdPanelRef;
+
+  panelRef && panelRef.close().then(function() {
     angular.element(document.querySelector('.demo-dialog-open-button')).focus();
+    panelRef.destroy();
   });
 };
 
@@ -164,3 +170,5 @@ PanelMenuCtrl.prototype.onKeydown = function($event, dessert) {
     return -1;
   }
 };
+
+})();

@@ -217,7 +217,7 @@ describe('<md-chips>', function() {
 
           expect(containers.length).toBe(0);
 
-          var removeContainer = wrap[0].querySelector('._md-chip-remove-container');
+          var removeContainer = wrap[0].querySelector('.md-chip-remove-container');
           expect(removeContainer).not.toBeTruthy();
         });
 
@@ -270,10 +270,10 @@ describe('<md-chips>', function() {
           // and a user-provided value.
           expect(controller.removable).toBe(undefined);
 
-          var containers = wrap[0].querySelectorAll("._md-chip-input-container");
+          var containers = wrap[0].querySelectorAll(".md-chip-input-container");
           expect(containers.length).not.toBe(0);
 
-          var removeContainer = wrap[0].querySelector('._md-chip-remove-container');
+          var removeContainer = wrap[0].querySelector('.md-chip-remove-container');
           expect(removeContainer).toBeTruthy();
         });
 
@@ -289,7 +289,7 @@ describe('<md-chips>', function() {
           expect(wrap.hasClass("md-removable")).toBe(false);
           expect(controller.removable).toBe(false);
 
-          var containers = wrap[0].querySelectorAll("._md-chip-remove-container");
+          var containers = wrap[0].querySelectorAll(".md-chip-remove-container");
           expect(containers.length).toBe(0);
 
           scope.$apply('removable = true');
@@ -297,7 +297,7 @@ describe('<md-chips>', function() {
           expect(wrap.hasClass("md-removable")).toBe(true);
           expect(controller.removable).toBe(true);
 
-          containers = wrap[0].querySelector("._md-chip-remove-container");
+          containers = wrap[0].querySelector(".md-chip-remove-container");
           expect(containers).toBeTruthy();
         });
 
@@ -367,12 +367,12 @@ describe('<md-chips>', function() {
 
           expect(ctrl.removable).toBeUndefined();
 
-          var removeContainer = wrap[0].querySelector('._md-chip-remove-container');
+          var removeContainer = wrap[0].querySelector('.md-chip-remove-container');
           expect(removeContainer).toBeFalsy();
 
           scope.$apply('isRemovable = true');
 
-          removeContainer = wrap[0].querySelector('._md-chip-remove-container');
+          removeContainer = wrap[0].querySelector('.md-chip-remove-container');
           expect(removeContainer).toBeTruthy();
         });
 
@@ -468,7 +468,10 @@ describe('<md-chips>', function() {
 
           // This string contains a lot of spaces, which should be trimmed.
           input.val('    Test    ');
-          input.triggerHandler('input');
+
+          // We have to trigger the `change` event, because IE11 does not support
+          // the `input` event to update the ngModel. An alternative for `input` is to use the `change` event.
+          input.triggerHandler('change');
 
           expect(ctrl.chipBuffer).toBeTruthy();
 
@@ -483,44 +486,118 @@ describe('<md-chips>', function() {
           expect(scope.items).toEqual(['Apple', 'Banana', 'Orange', 'Test']);
         }));
 
-        it('should properly cancel the backspace event to select the chip before', inject(function($mdConstant) {
-          var element = buildChips(BASIC_CHIP_TEMPLATE);
-          var ctrl = element.controller('mdChips');
-          var input = element.find('input');
+        describe('with backspace event', function() {
 
-          input.val('    ');
-          input.triggerHandler('input');
+          var backspaceEvent, element, input, ctrl, isValidInput;
 
-          // Since the `md-chips` component is testing the backspace select previous chip functionality by
-          // checking the current caret / cursor position, we have to set the cursor to the end of the current
-          // value.
-          input[0].selectionStart = input[0].selectionEnd = input[0].value.length;
+          beforeEach(inject(function($mdConstant) {
+            backspaceEvent = {
+              type: 'keydown',
+              keyCode: $mdConstant.KEY_CODE.BACKSPACE,
+              which: $mdConstant.KEY_CODE.BACKSPACE,
+              preventDefault: jasmine.createSpy('preventDefault')
+            };
+          }));
 
-          var enterEvent = {
-            type: 'keydown',
-            keyCode: $mdConstant.KEY_CODE.BACKSPACE,
-            which: $mdConstant.KEY_CODE.BACKSPACE,
-            preventDefault: jasmine.createSpy('preventDefault')
-          };
+          afterEach(function() {
+            element && element.remove();
+          });
 
-          input.triggerHandler(enterEvent);
+          function createChips(template) {
+            element = buildChips(template);
+            input = element.find('input');
+            ctrl = element.controller('mdChips');
 
-          expect(enterEvent.preventDefault).not.toHaveBeenCalled();
+            $timeout.flush();
 
-          input.val('');
-          input.triggerHandler('input');
+            // Add the element to the document's body, because otherwise we won't be able
+            // to set the selection of the chip input.
+            document.body.appendChild(element[0]);
 
-          // Since the `md-chips` component is testing the backspace select previous chip functionality by
-          // checking the current caret / cursor position, we have to set the cursor to the end of the current
-          // value.
-          input[0].selectionStart = input[0].selectionEnd = input[0].value.length;
+            /** Detect whether the current input is supporting the `selectionStart` property */
+            var oldInputValue = input.val();
+            input.val('2');
+            isValidInput = angular.isDefined(ctrl.getCursorPosition(input[0]));
+            input.val(oldInputValue);
+          }
 
-          input.triggerHandler(enterEvent);
+          /**
+           * Updates the cursor position of the input.
+           * This is necessary to test the cursor position.
+           */
+          function updateInputCursor() {
+            if (isValidInput) {
+              input[0].selectionStart = input[0].selectionEnd = input[0].value.length;
+            }
+          }
 
-          expect(enterEvent.preventDefault).toHaveBeenCalledTimes(1);
-        }));
+          it('should properly cancel the backspace event to select the chip before', function() {
+            createChips(BASIC_CHIP_TEMPLATE);
+
+            input.val('    ');
+            updateInputCursor();
+            input.triggerHandler('change');
+
+            input.triggerHandler(backspaceEvent);
+            expect(backspaceEvent.preventDefault).not.toHaveBeenCalled();
+
+            input.val('');
+            updateInputCursor();
+            input.triggerHandler('change');
+
+
+            input.triggerHandler(backspaceEvent);
+            expect(backspaceEvent.preventDefault).toHaveBeenCalledTimes(1);
+          });
+
+          it('should properly cancel the backspace event to select the chip before', function() {
+            createChips(BASIC_CHIP_TEMPLATE);
+
+            input.val('    ');
+            updateInputCursor();
+            input.triggerHandler('change');
+
+
+            input.triggerHandler(backspaceEvent);
+            expect(backspaceEvent.preventDefault).not.toHaveBeenCalled();
+
+            input.val('');
+            updateInputCursor();
+            input.triggerHandler('change');
+
+            input.triggerHandler(backspaceEvent);
+            expect(backspaceEvent.preventDefault).toHaveBeenCalledTimes(1);
+          });
+
+          it('should properly handle the cursor position when using a number input', function() {
+            createChips(
+              '<md-chips ng-model="items">' +
+                '<input type="number" placeholder="Enter a number">' +
+              '</md-chips>'
+            );
+
+            input.val('2');
+            updateInputCursor();
+            input.triggerHandler('change');
+
+            input.triggerHandler(backspaceEvent);
+            $timeout.flush();
+
+            expect(backspaceEvent.preventDefault).not.toHaveBeenCalled();
+
+            input.val('');
+            updateInputCursor();
+            input.triggerHandler('change');
+
+            input.triggerHandler(backspaceEvent);
+            $timeout.flush();
+
+            expect(backspaceEvent.preventDefault).toHaveBeenCalledTimes(1);
+          });
+
+        });
+
       });
-
 
       it('focuses/blurs the component when focusing/blurring the input', inject(function() {
         var element = buildChips(BASIC_CHIP_TEMPLATE);
@@ -830,6 +907,10 @@ describe('<md-chips>', function() {
           setupScopeForAutocomplete();
           var element = buildChips(AUTOCOMPLETE_CHIPS_TEMPLATE);
 
+          // Add the element to the document's body, because otherwise we won't be able
+          // to set the selection of the chip input.
+          document.body.appendChild(element[0]);
+
           // The embedded `md-autocomplete` needs a timeout flush for it's initialization.
           $timeout.flush();
           $timeout.flush();
@@ -874,6 +955,9 @@ describe('<md-chips>', function() {
           scope.$digest();
 
           expect(backspaceEvent.preventDefault).toHaveBeenCalledTimes(1);
+
+          // Remove the chips element from the document's body.
+          document.body.removeChild(element[0]);
         }));
 
         it('simultaneously allows selecting an existing chip AND adding a new one', inject(function($mdConstant) {
