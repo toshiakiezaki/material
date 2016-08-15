@@ -1,12 +1,11 @@
 /** Styles for mdDatepicker. */
 $md-datepicker-button-gap: 12px !default;  // Space between the text input and the calendar-icon button.
-$md-datepicker-border-bottom-gap: 5px !default;  // Space between input and the grey underline.
 $md-date-arrow-size: 5px !default; // Size of the triangle on the right side of the input.
 $md-datepicker-open-animation-duration: 0.2s !default;
 $md-datepicker-triangle-button-width: 36px !default;
-$md-datepicker-input-mask-height: 40px !default;
+$md-datepicker-input-height: 30px !default;
+$md-datepicker-input-mask-height: ($md-datepicker-input-height - 3) !default;
 $md-datepicker-button-padding: 8px !default;
-
 
 md-datepicker {
   // Don't let linebreaks happen between the open icon-button and the input.
@@ -51,13 +50,30 @@ md-datepicker {
 // The input into which the user can type the date.
 .md-datepicker-input {
   @include md-flat-input();
+  padding-left: 1px;
+  height: $md-datepicker-input-height;
   min-width: 120px;
-  max-width: $md-calendar-width - $md-datepicker-button-gap;
+  max-width: $md-calendar-width;
+  @include rtl-prop(margin-left, margin-right, 1px, auto);
+
+  &._md-datepicker-has-calendar-icon {
+    max-width: $md-calendar-width - $md-datepicker-button-gap;
+  }
 }
 
 // If the datepicker is inside of a md-input-container
 ._md-datepicker-floating-label {
+  &._md-datepicker-has-calendar-icon > label:not(.md-no-float):not(._md-container-ignore) {
+    $width-offset: $md-datepicker-triangle-button-width * 2 + $md-datepicker-button-gap;
+    $offset: $md-datepicker-triangle-button-width / 2;
+    @include rtl(right, $offset, auto);
+    @include rtl(left, auto, $offset);
+    width: calc(100% - #{$width-offset});
+  }
+
   > md-datepicker {
+    display: flex;
+    margin: 0;
     // Prevents the ripple on the triangle from being clipped.
     overflow: visible;
 
@@ -68,7 +84,6 @@ md-datepicker {
     .md-datepicker-button {
       // Prevents the button from wrapping around.
       @include rtl(float, left, right);
-      margin-top: -$md-datepicker-border-bottom-gap / 2;
     }
   }
 
@@ -94,7 +109,6 @@ md-datepicker {
   // Position relative in order to absolutely position the down-triangle button within.
   position: relative;
 
-  padding-bottom: $md-datepicker-border-bottom-gap;
   border-bottom-width: 1px;
   border-bottom-style: solid;
 
@@ -141,7 +155,7 @@ md-datepicker {
 .md-datepicker-input-mask {
   // It needs to be 1px shorter because of the datepicker-input-container's bottom border,
   // which can cause a slight hole in the mask when it's inside a md-input-container.
-  height: $md-datepicker-input-mask-height - 1px;
+  height: $md-datepicker-input-mask-height;
   width: $md-calendar-width;
   position: relative;
 
@@ -229,34 +243,11 @@ md-datepicker[disabled] {
 
 // Open state for all of the elements of the picker.
 .md-datepicker-open {
-  overflow: hidden;
-
-  .md-datepicker-input-container {
-    // The negative bottom margin prevents the content around the datepicker
-    // from jumping when it gets opened.
-    margin-bottom: -$md-datepicker-border-bottom-gap;
-  }
-
   .md-icon-button + .md-datepicker-input-container {
     @include rtl-prop(margin-left, margin-right, -$md-datepicker-button-gap, auto);
   }
 
-  .md-datepicker-input,
-  label:not(.md-no-float):not(.md-container-ignore) {
-    margin-bottom: -$md-datepicker-border-bottom-gap;
-  }
-
-  // This needs some extra specificity in order to override
-  // the focused/invalid border colors.
-  input.md-datepicker-input {
-    @include rtl-prop(margin-left, margin-right, 24px, auto);
-    height: $md-datepicker-input-mask-height;
-    border-bottom-color: transparent;
-  }
-
-  .md-datepicker-triangle-button,
-  &.md-input-has-value > label,
-  &.md-input-has-placeholder > label {
+  .md-datepicker-triangle-button {
     display: none;
   }
 }
