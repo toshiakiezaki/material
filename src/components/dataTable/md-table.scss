@@ -1,0 +1,233 @@
+md-card {
+  > md-toolbar.md-table-toolbar:first-child,
+  > md-table-container:first-child {
+    border-top-left-radius: 2px;
+    border-top-right-radius: 2px;
+  }
+
+  > md-toolbar.md-table-toolbar:last-child,
+  > md-table-container:last-child {
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+  }
+}
+
+md-table-container {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+md-table.md-table {
+  display: table;
+  width: 100%;
+  border-spacing: 0;
+  overflow: hidden;
+
+  md-head.md-head {
+    display: table-header-group;
+  }
+
+  md-body.md-body {
+    display: table-row-group;
+  }
+
+  md-head.md-head > md-row.md-row {
+    display: table-row;
+    height: 56px;
+  }
+
+  md-body.md-body > md-row.md-row,
+  md-foot.md-foot > md-row.md-row {
+    display: table-row;
+    height: 48px;
+  }
+
+  thead + .md-table-progress md-progress-linear {
+    top: -3px;
+  }
+
+  .md-table-progress th {
+    padding: 0;
+
+    md-progress-linear {
+      height: 0;
+      transition: opacity 1s;
+
+      &.ng-hide {
+        opacity: 0;
+      }
+
+      > ._md-container {
+        height: 3px;
+        top: 0;
+        transition: none;
+
+        > ._md-bar {
+          height: 3px;
+        }
+      }
+    }
+  }
+
+  md-column.md-column {
+    color: rgba(0, 0, 0, 0.54);
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+
+    &.md-sort {
+      cursor: pointer;
+    }
+
+    md-icon {
+      height: 24px;
+      width: 16px;
+      min-width: 16px;
+      font-size: 16px !important;
+      line-height: 24px !important;
+
+      &.md-sort-icon {
+        color: rgba(0, 0, 0, 0.26);
+        opacity: 0;
+        transition: transform 0.25s, opacity 0.25s;
+
+        &.md-asc {
+          transform: rotate(0deg);
+        }
+
+        &.md-desc {
+          transform: rotate(180deg);
+        }
+      }
+
+      &:not(:first-child) {
+        margin-left: 8px;
+      }
+
+      &:not(:last-child) {
+        margin-right: 8px;
+      }
+    }
+
+    &.md-active,
+    &.md-active md-icon {
+      color: rgba(0, 0, 0, 0.87);
+    }
+
+    &:hover md-icon.md-sort-icon,
+    &.md-active md-icon.md-sort-icon {
+      opacity: 1;
+    }
+  }
+
+  md-row.md-row {
+    &[ng\:repeat].ng-leave,
+    &[ng-repeat].ng-leave,
+    &[x-ng-repeat].ng-leave,
+    &[data-ng-repeat].ng-leave {
+      display: none;
+    }
+  }
+
+  &.md-row-select md-body.md-body > md-row.md-row {
+    transition: background-color 0.2s;
+
+    &:not([disabled]):hover {
+      background-color: #eee !important;
+    }
+
+    &.md-selected {
+      background-color: #f5f5f5;
+    }
+  }
+
+  &.md-row-select md-cell.md-cell,
+  &.md-row-select md-column.md-column {
+    &:first-child {
+      width: 20px;
+      padding: 0 0 0 24px;
+    }
+
+    &:nth-child(2) {
+      padding: 0 24px;
+    }
+
+    &:nth-child(n+3):nth-last-child(n+2) {
+      padding: 0 56px 0 0;
+    }
+  }
+
+  &:not(.md-row-select) md-cell.md-cell,
+  &:not(.md-row-select) md-column.md-column {
+    &:first-child {
+      padding: 0 24px;
+    }
+
+    &:nth-child(n+2):nth-last-child(n+2) {
+      padding: 0 56px 0 0;
+    }
+  }
+
+  md-cell.md-cell,
+  md-column.md-column {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: left;
+
+    > * {
+      vertical-align: middle;
+    }
+
+    &:last-child {
+      padding: 0 24px 0 0;
+    }
+
+    &.md-clickable {
+      cursor: pointer;
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    &.md-numeric {
+      text-align: right;
+    }
+
+    md-checkbox {
+      margin: 0;
+      width: 20px;
+    }
+  }
+
+  md-cell.md-cell {
+    color: rgba(0, 0, 0, 0.87);
+    font-size: 13px;
+    border-top: 1px rgba(0, 0, 0, 0.12) solid;
+
+    &.md-numeric md-select {
+      justify-content: flex-end;
+
+      ._md-select-value {
+        flex: 0 0 auto;
+      }
+    }
+
+    &.md-placeholder {
+      color: rgba(0, 0, 0, 0.26);
+    }
+
+    md-select > ._md-select-value > span._md-select-icon {
+      justify-content: flex-end;
+      color: rgba(0, 0, 0, 0.54);
+      width: 18px;
+      text-align: right;
+
+      &:after {
+        transform: scaleY(0.4) scaleX(0.8);
+      }
+    }
+  }
+}

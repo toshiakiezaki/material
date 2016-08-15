@@ -17,11 +17,13 @@ describe('md-datepicker', function() {
          'md-date-filter="dateFilter"' +
          'ng-model="myDate" ' +
          'ng-change="dateChangedHandler()" ' +
+         'ng-focus="focusHandler()" ' +
+         'ng-blur="blurHandler()" ' +
          'ng-required="isRequired" ' +
          'ng-disabled="isDisabled">' +
     '</md-datepicker>';
 
-  beforeEach(module('material.components.datepicker', 'ngAnimateMock'));
+  beforeEach(module('material.components.datepicker', 'material.components.input', 'ngAnimateMock'));
 
   beforeEach(inject(function($rootScope, $injector) {
     $compile = $injector.get('$compile');
@@ -115,18 +117,7 @@ describe('md-datepicker', function() {
     }).not.toThrow();
   });
 
-  it('should work inside of md-input-container', function() {
-    var template =
-        '<md-input-container>' +
-          '<md-datepicker ng-model="myDate"></md-datepicker>' +
-        '</md-input-container>';
-
-    expect(function() {
-      $compile(template)(pageScope);
-    }).not.toThrow();
-  });
-
-  describe('ngMessages suport', function() {
+  describe('ngMessages support', function() {
     it('should set the `required` $error flag', function() {
       pageScope.isRequired = true;
       populateInputElement('');
@@ -243,6 +234,31 @@ describe('md-datepicker', function() {
 
         expect(formCtrl.$error['filtered']).toBeTruthy();
       });
+
+      it('should add the invalid class when the form is submitted', function() {
+        // This needs to be recompiled, in order to reproduce conditions where a form is
+        // submitted, without the datepicker having being touched (usually it has it's value
+        // set to `myDate` by default).
+        ngElement && ngElement.remove();
+        pageScope.myDate = null;
+        pageScope.isRequired = true;
+
+        createDatepickerInstance('<form>' + DATEPICKER_TEMPLATE + '</form>');
+
+        var formCtrl = ngElement.controller('form');
+        var inputContainer = ngElement.controller('mdDatepicker').inputContainer;
+
+        expect(formCtrl.$invalid).toBe(true);
+        expect(formCtrl.$submitted).toBe(false);
+        expect(inputContainer).not.toHaveClass('md-datepicker-invalid');
+
+        pageScope.$apply(function() {
+          formCtrl.$setSubmitted(true);
+        });
+
+        expect(formCtrl.$submitted).toBe(true);
+        expect(inputContainer).toHaveClass('md-datepicker-invalid');
+      });
     });
   });
 
@@ -294,6 +310,17 @@ describe('md-datepicker', function() {
 
       populateInputElement('cheese');
       expect(controller.inputContainer).toHaveClass('md-datepicker-invalid');
+    });
+
+    it('should toggle the invalid class when an external value causes the error state to change', function() {
+      pageScope.isRequired = true;
+      populateInputElement('');
+      expect(controller.inputContainer).toHaveClass('md-datepicker-invalid');
+
+      pageScope.$apply(function() {
+        pageScope.isRequired = false;
+      });
+      expect(controller.inputContainer).not.toHaveClass('md-datepicker-invalid');
     });
 
     it('should not update the model when value is not enabled', function() {
@@ -461,7 +488,9 @@ describe('md-datepicker', function() {
       // Expect that the calendar pane is in the same position as the inline datepicker.
       var paneRect = controller.calendarPane.getBoundingClientRect();
       var triggerRect = controller.inputContainer.getBoundingClientRect();
-      expect(paneRect.top).toBe(triggerRect.top);
+
+      // We expect the offset to be close to the exact height, because on IE there are some deviations.
+      expect(paneRect.top).toBeCloseTo(triggerRect.top, 0.5);
 
       // Restore body to pre-test state.
       body.removeChild(superLongElement);
@@ -559,10 +588,43 @@ describe('md-datepicker', function() {
     });
   });
 
-  it('should be able open the calendar when the input is focused', function() {
-    createDatepickerInstance('<md-datepicker ng-model="myDate" md-open-on-focus></md-datepicker>');
-    controller.ngInputElement.triggerHandler('focus');
-    expect(document.querySelector('md-calendar')).toBeTruthy();
+  describe('mdOpenOnFocus attribute', function() {
+    beforeEach(function() {
+      createDatepickerInstance('<md-datepicker ng-model="myDate" md-open-on-focus></md-datepicker>');
+    });
+
+    it('should be able open the calendar when the input is focused', function() {
+      controller.ngInputElement.triggerHandler('focus');
+      expect(controller.isCalendarOpen).toBe(true);
+    });
+
+    it('should not reopen a closed calendar when the window is refocused', inject(function($timeout) {
+      // Focus the input initially to open the calendar.
+      // Note that the element needs to be appended to the DOM so it can be set as the activeElement.
+      document.body.appendChild(element);
+      controller.inputElement.focus();
+      controller.ngInputElement.triggerHandler('focus');
+
+      expect(document.activeElement).toBe(controller.inputElement);
+      expect(controller.isCalendarOpen).toBe(true);
+
+      // Close the calendar, but make sure that the input is still focused.
+      controller.closeCalendarPane();
+      $timeout.flush();
+      expect(document.activeElement).toBe(controller.inputElement);
+      expect(controller.isCalendarOpen).toBe(false);
+
+      // Simulate the user tabbing away.
+      angular.element(window).triggerHandler('blur');
+      expect(controller.inputFocusedOnWindowBlur).toBe(true);
+
+      // Try opening the calendar again.
+      controller.ngInputElement.triggerHandler('focus');
+      expect(controller.isCalendarOpen).toBe(false);
+
+      // Clean up.
+      document.body.removeChild(element);
+    }));
   });
 
   describe('hiding the icons', function() {
@@ -583,6 +645,122 @@ describe('md-datepicker', function() {
       createDatepickerInstance('<md-datepicker ng-model="myDate" md-hide-icons="all"></md-datepicker>');
       expect(element.querySelector(calendarSelector)).toBeNull();
       expect(element.querySelector(triangleSelector)).toBeNull();
+    });
+  });
+
+  describe('md-input-container integration', function() {
+    var element;
+
+    it('should register the element with the mdInputContainer controller', function() {
+      compileElement();
+
+      var inputContainer = element.controller('mdInputContainer');
+
+      expect(inputContainer.input[0]).toBe(element[0].querySelector('md-datepicker'));
+      expect(inputContainer.element).toHaveClass('_md-datepicker-floating-label');
+    });
+
+    it('should notify the input container that the element has a placeholder', function() {
+      compileElement('md-placeholder="Enter a date"');
+      expect(element).toHaveClass('md-input-has-placeholder');
+    });
+
+    it('should add the asterisk if the element is required', function() {
+      compileElement('ng-required="isRequired"');
+      var label = element.find('label');
+
+      expect(label).not.toHaveClass('md-required');
+      pageScope.$apply('isRequired = true');
+      expect(label).toHaveClass('md-required');
+    });
+
+    it('should not add the asterisk if the element has md-no-asterisk', function() {
+      compileElement('required md-no-asterisk');
+      expect(element.find('label')).not.toHaveClass('md-required');
+    });
+
+    it('should pass the error state to the input container', inject(function($material) {
+      compileElement('required');
+
+      var ngModelCtrl = element.find('md-datepicker').controller('ngModel');
+      var invalidClass = 'md-input-invalid';
+
+      expect(ngModelCtrl.$valid).toBe(true);
+      expect(element).not.toHaveClass(invalidClass);
+
+      ngModelCtrl.$setViewValue(null);
+      ngModelCtrl.$setTouched(true);
+      $material.flushOutstandingAnimations();
+
+      expect(ngModelCtrl.$valid).toBe(false);
+      expect(element).toHaveClass(invalidClass);
+    }));
+
+    afterEach(function() {
+      element.remove();
+    });
+
+    function compileElement(attrs) {
+      var template =
+        '<md-input-container>' +
+          '<label>Enter a date</label>' +
+          '<md-datepicker ng-model="myDate" ' + attrs + '></md-datepicker>' +
+        '</md-input-container>';
+
+      element = $compile(template)(pageScope);
+      pageScope.$digest();
+    }
+  });
+
+  describe('ngFocus support', function() {
+    beforeEach(function() {
+      pageScope.focusHandler = jasmine.createSpy('ng-focus handler');
+    });
+
+    it('should trigger the ngFocus handler when the input is focused', function() {
+      controller.ngInputElement.triggerHandler('focus');
+      expect(pageScope.focusHandler).toHaveBeenCalled();
+    });
+
+    it('should trigger the ngFocus handler when the calendar is opened', function() {
+      controller.openCalendarPane({});
+      expect(pageScope.focusHandler).toHaveBeenCalled();
+    });
+
+    it('should only trigger once when mdOpenOnFocus is set', function() {
+      createDatepickerInstance('<md-datepicker ng-model="myDate" ng-focus="focusHandler()" ' +
+        'md-open-on-focus></md-datepicker>');
+
+      controller.ngInputElement.triggerHandler('focus');
+      expect(pageScope.focusHandler).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('ngBlur support', function() {
+    beforeEach(function() {
+      pageScope.blurHandler = jasmine.createSpy('ng-blur handler');
+    });
+
+    it('should trigger the ngBlur handler when the input is blurred', function() {
+      controller.ngInputElement.triggerHandler('blur');
+      expect(pageScope.blurHandler).toHaveBeenCalled();
+    });
+
+    it('should trigger the ngBlur handler when the calendar is closed', function() {
+      controller.openCalendarPane({
+        target: controller.ngInputElement
+      });
+      controller.closeCalendarPane();
+      expect(pageScope.blurHandler).toHaveBeenCalled();
+    });
+
+    it('should only trigger once when mdOpenOnFocus is set', function() {
+      createDatepickerInstance('<md-datepicker ng-model="myDate" ng-blur="blurHandler()" ' +
+        'md-open-on-focus></md-datepicker>');
+
+      controller.ngInputElement.triggerHandler('focus');
+      controller.closeCalendarPane();
+      expect(pageScope.blurHandler).toHaveBeenCalledTimes(1);
     });
   });
 });

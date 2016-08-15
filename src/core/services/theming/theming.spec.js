@@ -163,7 +163,7 @@ describe('$mdThemingProvider', function() {
       expect(themingProvider._PALETTES.extended['100']).toEqual(testPalette['100']);
       expect(themingProvider._PALETTES.extended['50']).toEqual('newValue');
     });
-  }); 
+  });
 
   describe('css template parsing', function() {
     beforeEach(setup);
@@ -351,11 +351,13 @@ describe('$mdThemeProvider with custom styles', function() {
       $mdThemingProvider.registerStyles('/*test*/');
       $mdThemingProvider.theme('register-custom-styles');
     });
-    
-    // Verify that $MD_THEME_CSS is still set to '/**/' in the test environment.
-    // Check angular-material-mocks.js for $MD_THEME_CSS latest value if this test starts to fail. 
-    inject(function($MD_THEME_CSS) { expect($MD_THEME_CSS).toBe('/**/'); });
-    
+
+    inject(function($MD_THEME_CSS) {
+      // Verify that $MD_THEME_CSS is still set to '/**/' in the test environment.
+      // Check angular-material-mocks.js for $MD_THEME_CSS latest value if this test starts to fail.
+      expect($MD_THEME_CSS).toBe('/**/');
+    });
+
     // Find the string '/**//*test*/' in the head tag.
     expect(document.head.innerHTML).toContain('/*test*/');
   });
@@ -416,6 +418,100 @@ describe('$mdThemeProvider with on-demand generation', function() {
     expect(styles.length).toBe(8);
     expect(document.head.innerHTML).toMatch(/md-sweden-theme/);
     expect(document.head.innerHTML).toMatch(/md-belarus-theme/);
+  });
+});
+
+describe('$mdThemeProvider with a theme that ends in a newline', function() {
+  beforeEach(function() {
+    module('material.core', function($provide) {
+      // Note that it should end with a newline
+      $provide.constant('$MD_THEME_CSS', "sparkle.md-THEME_NAME-theme { color: '{{primary-color}}' }\n");
+    });
+
+    inject(function($mdTheming) {});
+  });
+
+  it('should not add an extra closing bracket if the stylesheet ends with a newline', function() {
+    var style = document.head.querySelector('style[md-theme-style]');
+    expect(style.innerText).not.toContain('}}');
+    style.parentNode.removeChild(style);
+  });
+});
+
+describe('$mdThemeProvider with disabled themes', function() {
+
+  function getThemeStyleElements() {
+    return document.head.querySelectorAll('style[md-theme-style]');
+  }
+
+  function cleanThemeStyleElements() {
+    angular.forEach(getThemeStyleElements(), function(style) {
+      document.head.removeChild(style);
+    });
+  }
+  beforeEach(function() {
+
+    module('material.core', function($provide, $mdThemingProvider) {
+      // Use a single simple style rule for which we can check presence / absense.
+      $provide.constant('$MD_THEME_CSS', "sparkle.md-THEME_NAME-theme { color: '{{primary-color}}' }");
+
+      $mdThemingProvider
+        .theme('belarus')
+        .primaryPalette('red')
+        .accentPalette('green');
+
+    });
+  });
+
+  afterEach(function() {
+    cleanThemeStyleElements();
+  });
+
+  describe('can disable themes programmatically', function() {
+    beforeEach(function() {
+      cleanThemeStyleElements();
+
+      module('material.core', function($mdThemingProvider) {
+        $mdThemingProvider.disableTheming();
+      });
+    });
+
+    it('should not add any theme styles', function() {
+      var styles = getThemeStyleElements();
+      expect(styles.length).toBe(0);
+    });
+  });
+
+  describe('can disable themes declaratively', function() {
+    beforeEach(function() {
+      // Set the body attribute BEFORE the theming module is loaded
+      var el = document.getElementsByTagName('body')[0];
+          el.setAttribute('md-themes-disabled', '');
+    });
+
+    afterEach(function() {
+      var el = document.getElementsByTagName('body')[0];
+          el.removeAttribute('md-themes-disabled');
+    });
+
+    it('should not set any classnames', function() {
+      inject(function($rootScope, $compile, $mdTheming) {
+        el = $compile('<h1>Test</h1>')($rootScope);
+        $mdTheming(el);
+        expect(el.hasClass('md-default-theme')).toBe(false);
+      });
+    });
+
+    it('should not inject any styles', function() {
+      inject(function($rootScope, $compile, $mdTheming) {
+        el = $compile('<h1>Test</h1>')($rootScope);
+        $mdTheming(el);
+
+        var styles = getThemeStyleElements();
+        expect(styles.length).toBe(0);
+      });
+    });
+
   });
 });
 
@@ -593,7 +689,7 @@ describe('md-themable directive', function() {
     $rootScope.themey = 'red';
     var el = $compile('<div md-theme="{{themey}}"><span md-themable md-theme-watch></span></div>')($rootScope);
     $rootScope.$apply();
-    
+
     expect(el.children().hasClass('md-red-theme')).toBe(true);
     $rootScope.$apply('themey = "blue"');
     expect(el.children().hasClass('md-blue-theme')).toBe(true);
@@ -604,7 +700,7 @@ describe('md-themable directive', function() {
     $rootScope.themey = 'red';
     var el = $compile('<div md-theme="{{themey}}"><span md-themable></span></div>')($rootScope);
     $rootScope.$apply();
-    
+
     expect(el.children().hasClass('md-red-theme')).toBe(true);
     $rootScope.$apply('themey = "blue"');
     expect(el.children().hasClass('md-blue-theme')).toBe(false);

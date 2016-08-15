@@ -93,9 +93,9 @@ describe('md-calendar', function() {
   }
 
   /** Creates and compiles an md-calendar element. */
-  function createElement(parentScope) {
+  function createElement(parentScope, templateOverride) {
     var directiveScope = parentScope || $rootScope.$new();
-    var template = '<md-calendar md-min-date="minDate" md-max-date="maxDate" ' +
+    var template = templateOverride || '<md-calendar md-min-date="minDate" md-max-date="maxDate" ' +
         'ng-model="myDate"></md-calendar>';
     var attachedElement = angular.element(template);
     document.body.appendChild(attachedElement[0]);
@@ -225,7 +225,7 @@ describe('md-calendar', function() {
         });
 
         var expectedDates = [
-          ['May 2014', '', '', '1', '2', '3'],
+          ['May 2014', '', '1', '2', '3'],
           ['4', '5', '6', '7', '8', '9', '10'],
           ['11', '12', '13', '14', '15', '16', '17'],
           ['18', '19', '20', '21', '22', '23', '24'],
@@ -248,7 +248,7 @@ describe('md-calendar', function() {
         });
 
         var expectedDates = [
-          ['May 2014', '', '1', '2', '3', '4'],
+          ['May 2014', '1', '2', '3', '4'],
           ['5', '6', '7', '8', '9', '10', '11'],
           ['12', '13', '14', '15', '16', '17', '18'],
           ['19', '20', '21', '22', '23', '24', '25'],
@@ -706,5 +706,13 @@ describe('md-calendar', function() {
         expect(date).toHaveClass('md-calendar-date-disabled');
       }
     }
+  });
+
+  it('should have a configurable default view', function() {
+    ngElement.remove();
+    var calendar = createElement(null, '<md-calendar ng-model="myDate" md-current-view="year"></md-calendar>')[0];
+
+    expect(calendar.querySelector('md-calendar-month')).toBeFalsy();
+    expect(calendar.querySelector('md-calendar-year')).toBeTruthy();
   });
 });
