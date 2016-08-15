@@ -1,0 +1,34 @@
+<div ng-controller="AppCtrl" style="padding: 40px;">
+	<md-content>
+		<h4>Standard time-picker</h4>
+		<md-timepicker ng-model="myTime" md-placeholder="Enter time"></md-timepicker>
+
+		<br>
+		<md-input-container md-no-float>
+			<label>Current Time</label>
+			<md-timepicker ng-model="myTime" md-placeholder="Enter time"></md-timepicker>
+		</md-input-container>
+
+		<h4>Disabled time-picker</h4>
+		<md-timepicker ng-model="myTime" md-placeholder="Enter time" disabled></md-timepicker>
+
+		<h4>Time-picker with min time and max time</h4>
+		<md-timepicker ng-model="myTime" md-placeholder="Enter time" md-min-time="minTime" md-max-time="maxTime"></md-timepicker>
+
+		<h4>Only business hours are selectable</h4>
+		<md-timepicker ng-model="myTime" md-placeholder="Enter time" md-time-filter="onlyBusinessHoursPredicate" md-min-time="minTime" md-max-time="maxTime"></md-timepicker>
+
+		<h4>With ngMessages</h4>
+		<form name="myForm">
+			<md-timepicker name="timeField" ng-model="myTime" md-placeholder="Enter time" required md-min-time="minTime" md-max-time="maxTime"></md-timepicker>
+
+			<div class="validation-messages" ng-messages="myForm.timeField.$error">
+				<div ng-message="valid">The entered value is not a time!</div>
+				<div ng-message="required">This time is required!</div>
+				<div ng-message="mintime">Time is too early!</div>
+				<div ng-message="maxtime">Time is too late!</div>
+				<div ng-message="filtered">Only business hours are allowed!</div>
+			</div>
+		</form>
+	</md-content>
+</div>
