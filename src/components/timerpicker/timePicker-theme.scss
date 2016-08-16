@@ -1,0 +1,51 @@
+/** Theme styles for mdTimepicker. */
+
+.md-THEME_NAME-theme {
+
+  .md-timepicker-input {
+    @include input-placeholder-color('{{foreground-3}}');
+    color: '{{foreground-1}}';
+  }
+
+  .md-timepicker-input-container {
+    border-bottom-color: '{{background-300}}';
+
+    &.md-timepicker-focused {
+      border-bottom-color: '{{primary-500}}'
+    }
+
+    &.md-timepicker-invalid {
+      border-bottom-color: '{{warn-A700}}';
+    }
+  }
+
+  .md-timepicker-clock-pane {
+    border-color: '{{background-hue-1}}';
+  }
+
+  .md-timepicker-triangle-button {
+    .md-timepicker-expand-triangle {
+      border-top-color: '{{foreground-3}}';
+    }
+
+    &:hover .md-timepicker-expand-triangle {
+      border-top-color: '{{foreground-2}}';
+    }
+  }
+
+  // Open state for all of the elements of the picker.
+  .md-timepicker-open {
+    .md-timepicker-clock-icon {
+      fill: '{{primary-500}}';
+    }
+  }
+
+  .md-timepicker-open .md-timepicker-input-container,
+  .md-timepicker-input-mask-opaque {
+    background: '{{background-hue-1}}';
+  }
+
+  .md-timepicker-clock {
+    background: '{{background-A100}}';
+  }
+}

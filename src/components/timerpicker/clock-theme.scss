@@ -1,0 +1,10 @@
+/** Theme styles for mdClock. */
+
+.md-clock.md-THEME_NAME-theme {
+  background: '{{background-A100}}';
+  color: '{{background-1000-0.87}}';
+
+  tr:last-child td {
+    border-bottom-color: '{{background-200}}';
+  }
+}

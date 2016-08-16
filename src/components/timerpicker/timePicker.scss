@@ -1,0 +1,186 @@
+/** Styles for mdTimepicker. */
+$md-timepicker-open-animation-duration: 0.2s;
+$md-timepicker-triangle-button-width: 36px;
+$md-clock-width: 340px;
+
+md-timepicker {
+  // Don't let linebreaks happen between the open icon-button and the input.
+  white-space: nowrap;
+
+  // Leave room for the down-triangle button to "overflow" it's parent without modifying scrollLeft
+  @include rtl-prop(padding-right, padding-left, $md-timepicker-triangle-button-width / 2, auto);
+  @include rtl-prop(margin-right, margin-left, -$md-timepicker-triangle-button-width / 2, auto);
+
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.md-inline-form {
+  md-timepicker {
+    margin-top: 12px;
+  }
+}
+
+// The clock icon button used to open the clock pane.
+.md-timepicker-button {
+  display: inline-block;
+  box-sizing: border-box;
+  background: none;
+}
+
+// The input into which the user can type the date.
+.md-timepicker-input {
+  @include md-flat-input();
+  padding-left: 1px;
+  height: 30px;
+  min-width: 120px;
+  max-width: $md-clock-width;
+}
+
+// Container for the timepicker input.
+.md-timepicker-input-container {
+	width: auto;
+	// Position relative in order to absolutely position the down-triangle button within.
+	position: relative;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	display: inline-block;
+
+	&.md-timepicker-focused {
+		border-bottom-width: 2px;
+	}
+}
+
+// The clock portion of the floating pane (vs. the input mask).
+.md-timepicker-clock {
+	opacity: 0;
+	// Use a modified timing function (from swift-ease-out) so that the opacity part of the
+	// animation doesn't come in as quickly so that the floating pane doesn't ever seem to
+	// cover up the trigger input.
+	transition: opacity $md-timepicker-open-animation-duration cubic-bezier(0.5, 0, 0.25, 1);
+
+	.md-pane-open & {
+		opacity: 1;
+	}
+
+	md-clock {
+		display: inline-block;
+
+		&:focus {
+			outline: none;
+		}
+	}
+}
+
+// Down triangle/arrow indicating that the timepicker can be opened.
+// We can do this entirely with CSS without needing to load an icon.
+// See https://css-tricks.com/snippets/css/css-triangle/
+$md-date-arrow-size: 5px;
+.md-timepicker-expand-triangle {
+  // Center the triangle inside of the button so that the
+  // ink ripple origin looks correct.
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 0;
+  height: 0;
+  border-left: $md-date-arrow-size solid transparent;
+  border-right: $md-date-arrow-size solid transparent;
+  border-top: $md-date-arrow-size solid;
+}
+
+// Button containing the down "disclosure" triangle/arrow.
+.md-timepicker-triangle-button {
+  position: absolute;
+  @include rtl-prop(right, left, 0, auto);
+  top: 0;
+
+  // TODO(jelbourn): This position isn't great on all platforms.
+  @include rtl(transform, translateY(-25%) translateX(45%), translateY(-25%) translateX(-45%));
+}
+
+// Need crazy specificity to override .md-button.md-icon-button.
+// Only apply this high specifiy to the property we need to override.
+.md-timepicker-triangle-button.md-button.md-icon-button {
+  margin: 6px;
+  height: 100%;
+  width: $md-timepicker-triangle-button-width;
+  position: absolute;
+}
+
+// Disabled state for all elements of the picker.
+md-timepicker[disabled] {
+  .md-timepicker-input-container {
+    border-bottom-color: transparent;
+  }
+
+  .md-timepicker-triangle-button {
+    display: none;
+  }
+}
+
+// Open state for all of the elements of the picker.
+.md-timepicker-open {
+  .md-timepicker-input-container {
+    border: none;
+  }
+
+  .md-timepicker-input {
+    height: 30px;
+  }
+
+  .md-timepicker-triangle-button {
+    display: none;
+  }
+}
+
+// Animate the clock inside of the floating clock pane such that it appears to "scroll" into
+// view while the pane is opening. This is done as a cue to users that the clock is scrollable.
+.md-timepicker-clock-pane {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: $z-index-menu;
+	border-width: 1px;
+	border-style: solid;
+	background-color: #FFF;
+	transform: scale(0);
+	transform-origin: 0 0;
+	transition: transform $md-timepicker-open-animation-duration $swift-ease-out-timing-function;
+
+	&.md-pane-open {
+		transform: scale(1);
+	}
+}
+
+// When md-timepicker is used combined to md-input-container
+.md-inline-form {
+  md-input-container {
+    >md-timepicker {
+      margin-top: 0;
+    }
+  }
+}
+
+md-input-container {
+  >md-timepicker {
+    display: flex;
+    overflow: inherit;
+
+    >.md-timepicker-input-container {
+      border-bottom-width: 0px;
+      border-bottom-style: none;
+
+      &.md-timepicker-focused {
+        border-bottom-width: 0px;
+      }
+
+      >.md-timepicker-triangle-button.md-button.md-icon-button {
+        margin: 6px;
+        height: calc(100% - 24px);
+      }
+    }
+  }
+}
