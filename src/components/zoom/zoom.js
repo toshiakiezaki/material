@@ -4,5 +4,6 @@
  * @description Module for the zoom component.
  */
 angular.module('material.components.zoom', [
-  'material.core'
+  'material.core',
+  'zoom.templates'
 ]);

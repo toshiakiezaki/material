@@ -1,3 +1,54 @@
 /** Theme styles for mdZoom. */
+
 .md-THEME_NAME-theme {
+	.md-zoom-input {
+		@include input-placeholder-color('{{foreground-3}}');
+		color: '{{foreground-1}}';
+	}
+
+	.md-zoom-input-container {
+		border-bottom-color: '{{background-300}}';
+
+		&.md-zoom-focused {
+			border-bottom-color: '{{primary-color}}';
+		}
+
+		&.md-zoom-invalid {
+			border-bottom-color: '{{warn-A700}}';
+		}
+	}
+
+	.md-zoom-triangle-button {
+		.md-zoom-expand-triangle {
+			border-top-color: '{{foreground-3}}';
+		}
+
+		&:hover .md-zoom-expand-triangle {
+			border-top-color: '{{foreground-2}}';
+		}
+	}
+
+	.md-zoom-open .md-zoom-input-container,
+	.md-zoom-input-mask-opaque {
+		background: '{{background-hue-1}}';
+	}
+
+	.md-zoom-pane {
+		>.md-zoom-options-container > li {
+			&:hover,
+			&.md-zoom-focused-option,
+			&.md-zoom-selected-option {
+				color: '{{primary-500}}';
+			}
+
+			&:hover:not(.md-zoom-selected-option),
+			&.md-zoom-focused-option:not(.md-zoom-selected-option) {
+				background-color: '{{background-100}}';
+			}
+
+			&.md-zoom-selected-option {
+				background-color: '{{background-300}}';
+			}
+		}
+	}
 }

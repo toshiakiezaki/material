@@ -1,4 +1,142 @@
-/** Styles for mdZoom. */
+$md-zoom-open-animation-duration: 0.2s;
+
 md-zoom {
-	
+	white-space: nowrap;
+	padding-right: 46px;
+	vertical-align: middle;
+	display: inline-block;
+
+	&[disabled] {
+		>.md-zoom-input-container {
+    		border-bottom-color: transparent;
+
+    		>button {
+    			display: none;
+    		}
+    	}
+	}
+
+	>.md-zoom-input-container {
+		width: auto;
+		position: relative;
+		border-bottom-width: 1px;
+		border-bottom-style: solid;
+		display: inline-block;
+
+		&.md-zoom-focused {
+			background: transparent;
+			border-bottom-width: 2px;
+		}
+
+		>.md-errors-spacer {
+			min-height: 0;
+		}
+
+		>.md-zoom-input {
+			font-size: 16px;
+			box-sizing: border-box;
+			border: none;
+			box-shadow: none;
+			outline: none;
+			background: transparent;
+			padding-left: 1px;
+			margin-right: 25px;
+			height: 30px;
+			min-width: 120px;
+			max-width: 340px;
+		}
+
+		>.md-zoom-other-button, 
+		>.md-zoom-triangle-button {
+			width: 36px;
+			height: 100%;
+			margin: 6px;
+			position: absolute;
+			right: 0;
+			top: 0;
+			transform: translateY(-25%) translateX(45%);
+
+			>.md-zoom-expand-triangle {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				-webkit-transform: translate(-50%, -50%);
+				transform: translate(-50%, -50%);
+				width: 0;
+				height: 0;
+				border-left: 5px solid transparent;
+				border-right: 5px solid transparent;
+				border-top: 5px solid;
+				border-top-color: rgba(0, 0, 0, 0.38);
+			}
+
+			>.md-zoom-expand-other {
+				width: 10px;
+				margin: 0 auto;
+				font-size: 18pt;
+				writing-mode: vertical-lr;
+			}
+		}
+
+		>.md-zoom-other-button {
+			right: -36px;
+		}
+	}
+}
+
+.md-zoom-pane {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: $z-index-menu;
+	background-color: #FFF;
+	transform: scale(0);
+	transform-origin: 0 0;
+	transition: transform $md-zoom-open-animation-duration $swift-ease-out-timing-function;
+ 
+	&.md-options-open {
+		transform: scale(1);
+	}
+
+	>.md-zoom-options-container {
+		width: 350px;
+		list-style: none;
+
+		> li {
+			height: 35px;
+			margin: 0;
+			padding: 0 10px;
+			line-height: 35px;
+			cursor: pointer;
+			outline: 0;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+
+		>button {
+			width: 100%;
+			margin: 0;
+		}
+	}
+}
+
+.md-dialog-fullscreen {
+	width: 80%;
+	height: 80%;
+
+	md-input-container {
+		margin: 0;
+	}
+
+	.md-pagination {
+		float: right;
+		border-top: 0;
+	}
+
+	md-table-container {
+		width: calc(100% - 48px);
+		height: calc(100% - 104px);
+		position: absolute;
+	}
 }
