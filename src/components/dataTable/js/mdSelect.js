@@ -13,6 +13,7 @@ angular.module('material.components.table').directive('mdSelect', ['$compile', '
     var getId = $parse(attrs.mdSelectId);
 
     self.id = getId(self.model);
+    self.parentCtrl = scope.$parent.$parent.ctrl;
 
     if(tableCtrl.$$rowSelect && self.id) {
       if(tableCtrl.$$hash.has(self.id)) {
@@ -67,7 +68,7 @@ angular.module('material.components.table').directive('mdSelect', ['$compile', '
       }
 
       if(angular.isFunction(self.onSelect)) {
-        self.onSelect(self.model);
+        self.onSelect.call(self.parentCtrl, self.model);
       }
     };
 
@@ -79,7 +80,7 @@ angular.module('material.components.table').directive('mdSelect', ['$compile', '
       tableCtrl.selected.splice(tableCtrl.selected.indexOf(self.model), 1);
 
       if(angular.isFunction(self.onDeselect)) {
-        self.onDeselect(self.model);
+        self.onDeselect.call(self.parentCtrl, self.model);
       }
     };
 
