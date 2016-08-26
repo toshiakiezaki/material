@@ -114,6 +114,15 @@ $md-date-arrow-size: 5px;
 md-timepicker[disabled] {
   .md-timepicker-input-container {
     border-bottom-color: transparent;
+    background-size: 4px 1px;
+    background-repeat: repeat-x;
+    background-position: bottom -1px left 0;
+    background-image: -ms-linear-gradient(left, transparent 0%, rgba(0,0,0,0.38) 100%);
+    background-image: linear-gradient(to right, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.38) 33%, transparent 0%);
+
+    >input {
+      color: rgba(0, 0, 0, 0.38);
+    }
   }
 
   .md-timepicker-triangle-button {
