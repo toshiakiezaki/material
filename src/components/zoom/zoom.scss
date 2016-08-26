@@ -8,7 +8,16 @@ md-zoom {
 
 	&[disabled] {
 		>.md-zoom-input-container {
-    		border-bottom-color: transparent;
+			border-bottom-color: transparent;
+			background-image: -ms-linear-gradient(left, transparent 0%, rgba(0, 0, 0, 0.38) 100%);
+				background-image: linear-gradient(to right, rgba(0, 0, 0, 0.38) 0%, rgba(0, 0, 0, 0.38) 33%, transparent 0%);
+			background-size: 4px 1px;
+			background-repeat: repeat-x;
+			background-position: bottom -1px left 0;
+
+			>input {
+				color: rgba(0,0,0,0.38);
+			}
 
     		>button {
     			display: none;
