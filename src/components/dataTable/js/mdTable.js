@@ -104,7 +104,7 @@ angular.module('material.components.table').directive('mdTable', function() {
     };
 
     self.getRows = function (element) {
-      return Array.prototype.filter.call($element[0].getElementsByTagName('md-row'), function (row) {
+      return Array.prototype.filter.call(element.getElementsByTagName('md-row'), function (row) {
         return !row.classList.contains('ng-leave');
       });
     };
