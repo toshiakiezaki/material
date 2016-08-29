@@ -31,9 +31,9 @@ md-zoom {
 		border-bottom-width: 1px;
 		border-bottom-style: solid;
 		display: inline-block;
+		background: transparent!important;
 
 		&.md-zoom-focused {
-			background: transparent;
 			border-bottom-width: 2px;
 		}
 
@@ -146,6 +146,12 @@ md-zoom {
 	md-table-container {
 		width: calc(100% - 48px);
 		height: calc(100% - 104px);
+		position: absolute;
+	}
+
+	.md-zoom-dialog-footer {
+		bottom: 18px;
+		right: 16px;
 		position: absolute;
 	}
 }

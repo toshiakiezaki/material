@@ -9,7 +9,11 @@ angular.module('zoomBasicUsage', ["ngMaterial", "ngMessages"]).controller("AppCt
 	$scope.zoom = {
 		selected: options[0],
 		options: options,
-		fetchSize: 4
+		fetchSize: 4,
+		gridFields: {
+			id: "ID",
+			name: "Name"
+		}
 	};
 
 	$scope.logSelect = function() {

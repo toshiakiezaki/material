@@ -21,6 +21,7 @@
 			scope: {
 				zoomFilter: '=?mdFilter',
 				options: '=mdOptions',
+				gridFields: '=mdGridFields',
 				keyParam: '=?mdKey',
 				nameParam: '=?mdName',
 				fetchSize: '=?mdFetchSize',
@@ -163,6 +164,8 @@
 		this.indexFocused = -1;
 
 		this.isZoomOptionsOpen = false;
+
+		this.isZoomDialogOpen = false;
 
 		this.zoomOptionsOpenedFrom = null;
 
@@ -375,9 +378,13 @@
 	ZoomCtrl.prototype.openZoomDialog = function(event) {
 		if (!this.isDisabled) {
 			var self = this;
-			self.gridSelection = [self.ngModelCtrl.$viewValue];
+
+			var viewValue = self.ngModelCtrl.$viewValue;
+			self.gridSelection = [viewValue];
+			self.selectionKey = this.hasValue(viewValue) ? viewValue[this.keyParam] : null;
 
 			self.closeZoomOptions();
+			self.isZoomDialogOpen = true;
 
 			self.pagination = {
 				page: 1,
@@ -386,7 +393,30 @@
 			};
 
 			self.$mdDialog.show({
-				controller: function () {
+				controller: function ($mdDialog) {
+					self.closeDialog = function(isForceCallSelectFunction) {
+						self.isZoomDialogOpen = false;
+
+						$mdDialog.hide();
+
+						if (isForceCallSelectFunction && angular.isFunction(self.onSelect)) {
+							self.onSelect();
+						}
+					};
+
+					self.revertDialogSelection = function() {
+						if (self.selectionKey !== null) {
+							for (var o = self.options.length; o--;) {
+								if (self.options[o][self.keyParam] === self.selectionKey) {
+									self.selectOption(self.options[o]);
+									break;
+								}
+							}
+						}
+
+						self.closeDialog(false);
+					};
+
 					return self;
 				},
 				controllerAs: 'ctrl',
@@ -395,6 +425,8 @@
 				targetEvent: event,
 				clickOutsideToClose: true,
 				fullscreen: true
+			}).then(function() {}, function() {
+				self.revertDialogSelection();
 			});
 		}
 	};
@@ -493,10 +525,12 @@
 	ZoomCtrl.prototype.selectOption = function(option) {
 		if (this.hasValue(option)) {
 			this.ngModelCtrl.$setViewValue(option);
-			this.updateInputValue();
 
-			if (angular.isFunction(this.onSelect)) {
-				this.onSelect.call(this);
+			this.updateInputValue();
+			this.closeZoomOptions();
+
+			if (!this.isZoomDialogOpen && angular.isFunction(this.onSelect)) {
+				this.onSelect();
 			}
 		}
 	};

@@ -7,7 +7,7 @@
 			<div flex-gt-xs>
 				<h4>Standard Zoom</h4>
 
-				<md-zoom ng-model="zoom.selected" md-placeholder="Usuários" md-options="zoom.options" md-on-select="logSelect"></md-zoom>
+				<md-zoom ng-model="zoom.selected" md-placeholder="Usuários" md-options="zoom.options" md-grid-fields="zoom.gridFields" md-on-select="logSelect"></md-zoom>
 			</div>
 
 			<div flex-gt-xs>
@@ -15,7 +15,7 @@
 
 				<md-input-container id="zoom-input-container">
 					<label>Usuários</label>
-					<md-zoom ng-model="zoom.test" md-options="zoom.options" md-on-select="logSelect"></md-zoom>
+					<md-zoom ng-model="zoom.selected" md-options="zoom.options" md-grid-fields="zoom.gridFields" md-on-select="logSelect"></md-zoom>
 				</md-input-container>
 			</div>
 		</div>
@@ -23,13 +23,13 @@
 		<div layout-gt-xs="row">
 			<div flex-gt-xs>
 				<h4>Disabled Zoom</h4>
-				<md-zoom ng-model="zoom.selected" md-placeholder="Usuários" md-options="zoom.options" disabled></md-zoom>
+				<md-zoom ng-model="zoom.selected" md-placeholder="Usuários" md-grid-fields="zoom.gridFields" md-options="zoom.options" disabled></md-zoom>
 			</div>
 
 			<div flex-gt-xs>
 				<h4>Zoom Add</h4>
 
-				<md-zoom ng-model="zoom.selected" md-placeholder="Usuários" md-options="zoom.options" md-on-add="addNewOption"></md-zoom>
+				<md-zoom ng-model="zoom.selected" md-placeholder="Usuários" md-grid-fields="zoom.gridFields" md-options="zoom.options" md-on-add="addNewOption"></md-zoom>
 			</div>
 		</div>
 
@@ -37,9 +37,9 @@
 			<div flex-gt-xs>
 				<h4>Zoom with dependency</h4>
 
-				<md-zoom ng-model="dependency.selectedGroup" md-placeholder="Grupos" md-options="dependency.groups" md-on-select="selectDefaultDependency"></md-zoom>
+				<md-zoom ng-model="dependency.selectedGroup" md-placeholder="Grupos" md-grid-fields="zoom.gridFields" md-options="dependency.groups" md-on-select="selectDefaultDependency"></md-zoom>
 
-				<md-zoom ng-model="dependency.selectedAnimal" md-placeholder="Animais" md-options="dependency.selectedGroup.animals" ng-disabled="dependency.selectedGroup==null"></md-zoom>
+				<md-zoom ng-model="dependency.selectedAnimal" md-placeholder="Animais" md-grid-fields="zoom.gridFields" md-options="dependency.selectedGroup.animals" ng-disabled="dependency.selectedGroup==null"></md-zoom>
 			</div>
 		</div>
 
@@ -47,7 +47,7 @@
 			<div flex-gt-xs>
 				<h4>Zoom with fetch size</h4>
 
-				<md-zoom ng-model="zoom.selected" md-placeholder="Usuários" md-options="zoom.options" md-fetch-size="zoom.fetchSize"></md-zoom>
+				<md-zoom ng-model="zoom.selected" md-placeholder="Usuários" md-options="zoom.options" md-grid-fields="zoom.gridFields" md-fetch-size="zoom.fetchSize"></md-zoom>
 			</div>
 		</div>
 	</md-content>
