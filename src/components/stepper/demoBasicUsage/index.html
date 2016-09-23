@@ -1,0 +1,26 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<div layout="column" ng-controller="AppCtrl">
+	<div flex layout="row" layout-align="center center">
+		<div flex="90" layout-padding style="position: relative;">
+			<md-progress-linear md-mode="determinate" value="{{progress}}" ng-if="progress>0" style="position: absolute; box-sizing: border-box; left: 0;"></md-progress-linear>
+
+			<md-stepper md-selected="currentStep" md-stretch-stepper="always">
+				<md-step ng-repeat="step in steps" md-title="step.label" md-complete="step.completed" ng-disabled="$index>(currentStep+1)">
+					<md-content>
+						<h1 style="text-align: center; line-height: 195px;">{{step.description}}</h1>
+					</md-content>
+				</md-step>
+			</md-stepper>
+
+			<md-button ng-click="changeStep('prev')" ng-hide="currentStep==0" ng-disabled="progress>0">
+				<md-icon class="material-icons">chevron_left</md-icon>
+				<span>Previous</span>
+			</md-button>
+			<md-button ng-click="changeStep('next')" ng-hide="currentStep==(steps.length-1)" ng-disabled="progress>0" style="float: right">
+				<span>Next</span>
+				<md-icon class="material-icons">chevron_right</md-icon>
+			</md-button>
+		</div>
+	</div>
+</div>
