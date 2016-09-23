@@ -14,7 +14,9 @@ angular.module('material.components.table').directive('mdPagination', function()
       of: 'of'
     };
 
-    self.limit = self.limitOptions[0] ? self.limitOptions[0] : 5;
+    if (self.limitOptions) {
+      self.limit = self.limitOptions ? self.limitOptions[0] : 5;
+    }
 
     self.label = angular.copy(defaultLabel);
 
