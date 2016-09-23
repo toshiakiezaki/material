@@ -1,0 +1,62 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<div ng-controller="AppCtrl" ng-cloak>
+	<md-content layout-padding>
+		<div layout-gt-xs="row">
+			<div flex-gt-xs>
+				<h4>Standard uploader</h4>
+				<md-uploader md-placeholder="Select a file..." md-url-upload="upload.url" ng-model="upload.file"></md-uploader>
+			</div>
+
+			<div flex-gt-xs>
+				<h4>Disabled uploader</h4>
+				<md-uploader md-placeholder="Select a file..." md-url-upload="upload.url" ng-model="upload.file" disabled></md-uploader>
+			</div>
+		</div>
+
+		<div layout-gt-xs="row">
+			<div flex-gt-xs>
+				<form name="myForm" flex-gt-xs>
+					<h4>With ngMessages (Only zip)</h4>
+					<md-uploader name="fileField" md-placeholder="Select a file..." md-url-upload="upload.url" ng-model="upload.fileZip" md-supported-formats="upload.supportedFormatsZip"></md-uploader>
+
+					<div class="validation-messages" ng-messages="myForm.fileField.$error">
+						<div ng-message="valid">Invalid Format!</div>
+					</div>
+				</form>
+			</div>
+
+			<div flex-gt-xs>
+				<md-input-container>
+					<label>Select File</label>
+					<md-uploader md-url-upload="upload.url" ng-model="upload.file"></md-uploader>
+				</md-input-container>
+			</div>
+		</div>
+
+		<div layout-gt-xs="row">
+			<div flex-gt-xs>
+				<h4>With Multiple files</h4>
+				<md-uploader md-placeholder="Select a file..." md-url-upload="upload.url" ng-model="upload.file" md-multiple></md-uploader>
+			</div>
+		</div>
+
+		<div layout-gt-xs="row">
+			<div flex-gt-xs>
+				<h4 class="text-center">Standard Droppable</h4>
+				<div class="droppable-container" layout-gt-xs="row" md-uploader ng-model="upload.file" md-url-upload="upload.url"></div>
+			</div>
+			<div flex-gt-xs>
+				<h4 class="text-center">Droppable with multiple files</h4>
+				<div class="droppable-container" layout-gt-xs="row" md-uploader ng-model="upload.file" md-url-upload="upload.url" md-multiple></div>
+			</div>
+		</div>
+
+		<div layout-gt-xs="row">
+			<div flex-gt-xs>
+				<h4 class="text-center">Droppable (Only zip)</h4>
+				<div class="droppable-container" layout-gt-xs="row" md-uploader ng-model="upload.fileZip" md-url-upload="upload.url" md-multiple md-supported-formats="upload.supportedFormatsZip"></div>
+			</div>
+		</div>
+	</md-content>
+</div>

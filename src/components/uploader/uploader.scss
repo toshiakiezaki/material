@@ -1,0 +1,197 @@
+/** Styles for mdUploader. */
+$md-uploader: 44px !default;
+
+md-uploader {
+	display: inline-block;
+
+	/** Component disabled */
+	&[disabled] {
+		a,
+		input,
+		button {
+			pointer-events: none;
+		}
+
+		.md-uploader-text {
+			border-bottom-color: transparent!important;
+			background-image: -ms-linear-gradient(left, transparent 0%, rgba(0, 0, 0, 0.38) 100%);
+				background-image: linear-gradient(to right, rgba(0, 0, 0, 0.38) 0%, rgba(0, 0, 0, 0.38) 33%, transparent 0%);
+			background-size: 4px 1px;
+			background-repeat: repeat-x;
+			background-position: bottom -1px left 0;
+		}
+	}
+
+	>.md-uploader-input-container {
+		position: relative;
+    	display: inherit;
+
+		/** Component with valid value */
+		&:not(.md-uploader-invalid) {
+			>md-input-container {
+				&:after {
+					display: none;
+				}
+
+				>.md-errors-spacer {
+					display: none;
+				}
+			}
+		}
+
+		/** Component with invalid value */
+		&.md-uploader-invalid {
+			padding-bottom: 15px;
+		}
+
+		/** Component focused */
+		&.md-uploader-focused {
+			.md-uploader-text {
+				border-bottom-width: 2px;
+			}
+		}
+
+		>.md-uploader-text {
+			width: auto;
+			min-width: 200px;
+			max-width: 400px;
+			height: 30px;
+			float: left;
+			display: block;
+			line-height: 30px;
+			padding: 2px;
+			box-sizing: border-box;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			border-bottom: 1px solid;
+			outline: none;
+		}
+
+		>.md-uploader-button {
+			width: 36px;
+			height: 36px;
+			padding: 8px;
+			position: absolute;
+			top: 2px;
+			right: -36px;
+
+			>input {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				top: 0;
+				left: 0;
+				opacity: 0;
+				cursor: pointer;
+
+				&::-webkit-file-upload-button {
+					cursor: pointer; 
+				}
+			}
+		}
+	}
+}
+
+.content-droppable-info {
+	width: 400px;
+	height: 150px;
+	position: absolute;
+	z-index: 1000;
+
+	>.content-droppable-icon {
+		width: 65px;
+		height: 60px;
+		display: block;
+		margin: 0 auto;
+		margin-bottom: 30px;
+		border-radius: 50%;
+		background-color: #FFF;
+		position: relative;
+		text-align: center;
+		line-height: 65px;
+		color: #106cc8;
+		font-size: 35px;
+    	animation-duration: 700ms;
+		animation-iteration-count: infinite;
+    	animation-name: droppableAnimation;
+
+		&:before {
+			content: "";
+			width: 50px;
+			height: 45px;
+			border-radius: 50%;
+			position: absolute;
+			background-color: #FFF;
+			left: -15px;
+			top: 15px;
+			z-index: -1;
+		}
+
+		&:after {
+			content: "";
+			width: 50px;
+			height: 40px;
+			border-radius: 50%;
+			position: absolute;
+			background-color: #FFF;
+			right: -17px;
+			top: 20px;
+			z-index: -1;
+		}
+
+		& > span {
+			width: 46px;
+			height: 20px;
+			display: block;
+			background-color: #FFF;
+			position: absolute;
+			bottom: 0;
+			left: 10px;
+			z-index: -1;
+		}
+	}
+
+	>.content-droppable-text {
+		width: 100%;
+		height: 60px;
+		background-color: #106cc8;
+		color: #FFF;
+		text-align: center;
+		line-height: 60px;
+	}
+}
+
+@keyframes droppableAnimation {
+	0% {
+		transform: translateY(0px);
+	}
+	50% {
+		transform: translateY(15px);
+	}
+	100% {
+		transform: translateY(0px);
+	}
+}
+
+.md-file-content {
+	width: 100px;
+	height: 120px;
+	float: left;
+
+	md-icon {
+		display: block;
+		margin: 33px auto;
+	}
+
+	label {
+		width: inherit;
+		height: 30px;
+		display: inline-block;
+		line-height: 30px;
+		text-align: center;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+}

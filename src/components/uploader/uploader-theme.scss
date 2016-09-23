@@ -1,0 +1,35 @@
+/** Theme styles for mdUploader. */
+
+.md-THEME_NAME-theme {
+	background: '{{background-A100}}';
+	color: '{{background-A200-0.87}}';
+
+	&[disabled] {
+		.md-uploader-button > md-icon {
+			color: '{{foreground-3}}';
+		}
+	}
+
+	.md-uploader-input-container {
+		&.md-uploader-focused {
+			.md-uploader-text {
+				border-bottom-color: '{{primary-color}}'!important;
+			}
+		}
+
+		&.md-uploader-invalid {
+			.md-uploader-text {
+				border-bottom-color: '{{warn-A700}}'!important;
+			}
+		}
+
+		.md-uploader-text {
+			color: '{{foreground-3}}';
+			border-bottom-color: '{{foreground-4}}'!important;
+
+			&.md-input-has-value {
+				color: '{{foreground-1}}';	
+			}
+		}
+	}
+}
