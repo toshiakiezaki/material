@@ -6,7 +6,7 @@ angular.module('material.components.table').directive('mdPagination', function()
     tElement.addClass('md-pagination');
   }
 
-  function Controller($attrs, $mdUtil, $scope) {
+  function Controller($attrs, $mdUtil, $scope, $http) {
     var self = this;
     var defaultLabel = {
       page: 'Page:',
@@ -30,7 +30,7 @@ angular.module('material.components.table').directive('mdPagination', function()
 
     self.first = function () {
       self.page = 1;
-      self.onPaginationChange();
+      self.getPageData();
     };
 
     self.hasNext = function () {
@@ -43,7 +43,7 @@ angular.module('material.components.table').directive('mdPagination', function()
 
     self.last = function () {
       self.page = self.pages();
-      self.onPaginationChange();
+      self.getPageData();
     };
 
     self.max = function () {
@@ -56,7 +56,7 @@ angular.module('material.components.table').directive('mdPagination', function()
 
     self.next = function () {
       self.page++;
-      self.onPaginationChange();
+      self.getPageData();
     };
 
     self.onPaginationChange = function () {
@@ -73,7 +73,40 @@ angular.module('material.components.table').directive('mdPagination', function()
 
     self.previous = function () {
       self.page--;
-      self.onPaginationChange();
+      self.getPageData();
+    };
+
+    self.getPageData = function() {
+      var self = this;
+
+      if (this.urlFind !== null && 
+            this.urlFind !== undefined && 
+            this.urlFind.trim() !== '') {
+        $http({
+          method: 'POST',
+          url: self.urlFind,
+          responseType: 'json',
+          data: {
+            page: self.page,
+            limit: self.limit,
+            search: self.search,
+            orderBy: self.order
+          }
+        }).then(function success(response) {
+          if (response) {
+            self.tableData = response.data.page;
+            self.total = response.data.total;
+
+            self.onPaginationChange();
+          } else {
+            console.error('Invalid Response!');
+          }
+        }, function error(response) {
+          console.error(response);
+        });
+      } else {
+        self.onPaginationChange();
+      }
     };
 
     self.showBoundaryLinks = function () {
@@ -95,7 +128,7 @@ angular.module('material.components.table').directive('mdPagination', function()
 
       // find closest page from previous min
       self.page = Math.floor(((self.page * oldValue - oldValue) + newValue) / (isPositive(newValue) ? newValue : 1));
-      self.onPaginationChange();
+      self.getPageData();
     });
 
     $attrs.$observe('mdLabel', function (label) {
@@ -111,9 +144,15 @@ angular.module('material.components.table').directive('mdPagination', function()
         self.last();
       }
     });
+
+    $scope.$watch(function() {
+      return self.order;
+    }, function(newValue, oldValue) {
+      self.getPageData();
+    });
   }
 
-  Controller.$inject = ['$attrs', '$mdUtil', '$scope'];
+  Controller.$inject = ['$attrs', '$mdUtil', '$scope', '$http'];
 
   return {
     bindToController: {
@@ -125,7 +164,10 @@ angular.module('material.components.table').directive('mdPagination', function()
       pageSelect: '=?mdPageSelect',
       onPaginate: '=?mdOnPaginate',
       limitOptions: '=?mdLimitOptions',
-      total: '@mdTotal'
+      total: '@mdTotal',
+      order: '=?mdOrder',
+      urlFind: '=?mdUrlFind',
+      tableData: '=?mdTableData'
     },
     compile: compile,
     controller: Controller,

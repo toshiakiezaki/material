@@ -21,7 +21,8 @@ angular.module('demoApp', ['ngMaterial'])
     largeEditDialog: false,
     boundaryLinks: true,
     limitSelect: false,
-    pageSelect: false
+    pageSelect: false,
+    urlFind: "/nutrition/find"
   };
 
   $scope.query = {
@@ -34,6 +35,7 @@ angular.module('demoApp', ['ngMaterial'])
     "count": 9,
     "data": [
       {
+        "id": 1,
         "name": "Frozen yogurt",
         "type": "Ice cream",
         "calories": { "value": 159.0 },
@@ -44,6 +46,7 @@ angular.module('demoApp', ['ngMaterial'])
         "calcium": { "value": 14.0 },
         "iron": { "value": 1.0 }
       }, {
+        "id": 2,
         "name": "Ice cream sandwich",
         "type": "Ice cream",
         "calories": { "value": 237.0 },
@@ -54,6 +57,7 @@ angular.module('demoApp', ['ngMaterial'])
         "calcium": { "value": 8.0 },
         "iron": { "value": 1.0 }
       }, {
+        "id": 3,
         "name": "Eclair",
         "type": "Pastry",
         "calories": { "value":  262.0 },
@@ -64,6 +68,7 @@ angular.module('demoApp', ['ngMaterial'])
         "calcium": { "value":  6.0 },
         "iron": { "value": 7.0 }
       }, {
+        "id": 4,
         "name": "Cupcake",
         "type": "Pastry",
         "calories": { "value":  305.0 },
@@ -74,6 +79,7 @@ angular.module('demoApp', ['ngMaterial'])
         "calcium": { "value": 3.0 },
         "iron": { "value": 8.0 }
       }, {
+        "id": 5,
         "name": "Jelly bean",
         "type": "Candy",
         "calories": { "value":  375.0 },
@@ -84,6 +90,7 @@ angular.module('demoApp', ['ngMaterial'])
         "calcium": { "value": 0.0 },
         "iron": { "value": 0.0 }
       }, {
+        "id": 6,
         "name": "Lollipop",
         "type": "Candy",
         "calories": { "value": 392.0 },
@@ -94,6 +101,7 @@ angular.module('demoApp', ['ngMaterial'])
         "calcium": { "value": 0.0 },
         "iron": { "value": 2.0 }
       }, {
+        "id": 7,
         "name": "Honeycomb",
         "type": "Other",
         "calories": { "value": 408.0 },
@@ -104,6 +112,7 @@ angular.module('demoApp', ['ngMaterial'])
         "calcium": { "value": 0.0 },
         "iron": { "value": 45.0 }
       }, {
+        "id": 8,
         "name": "Donut",
         "type": "Pastry",
         "calories": { "value": 452.0 },
@@ -114,6 +123,7 @@ angular.module('demoApp', ['ngMaterial'])
         "calcium": { "value": 2.0 },
         "iron": { "value": 22.0 }
       }, {
+        "id": 9,
         "name": "KitKat",
         "type": "Candy",
         "calories": { "value": 518.0 },

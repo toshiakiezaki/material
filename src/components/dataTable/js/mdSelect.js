@@ -53,7 +53,7 @@ angular.module('material.components.table').directive('mdSelect', ['$compile', '
         return tableCtrl.$$hash.has(self.id);
       }
 
-      return tableCtrl.selected.indexOf(self.model) !== -1;
+      return tableCtrl.selected.indexOf(self.model.id) !== -1;
     };
 
     self.select = function () {
@@ -62,9 +62,9 @@ angular.module('material.components.table').directive('mdSelect', ['$compile', '
       }
 
       if(tableCtrl.enableMultiSelect()) {
-        tableCtrl.selected.push(self.model);
+        tableCtrl.selected.push(self.model.id);
       } else {
-        tableCtrl.selected.splice(0, tableCtrl.selected.length, self.model);
+        tableCtrl.selected.splice(0, tableCtrl.selected.length, self.model.id);
       }
 
       if(angular.isFunction(self.onSelect)) {
