@@ -176,7 +176,7 @@ describe('$mdPanel', function() {
 
       expect(openResolved).toBe(true);
       expect(PANEL_WRAPPER_CLASS).toExist();
-      expect(panelRef._panelContainer).not.toHaveClass(HIDDEN_CLASS);
+      expect(panelRef.panelContainer).not.toHaveClass(HIDDEN_CLASS);
       expect(panelRef.isAttached).toEqual(true);
 
       panelRef.close().then(function() { closeResolved = true; });
@@ -227,7 +227,7 @@ describe('$mdPanel', function() {
 
       expect(openResolved).toBe(true);
       expect(panelRef.isAttached).toEqual(true);
-      expect(panelRef._panelContainer).not.toHaveClass(HIDDEN_CLASS);
+      expect(panelRef.panelContainer).not.toHaveClass(HIDDEN_CLASS);
     });
 
     it('should reject on show when opening', function() {
@@ -242,7 +242,7 @@ describe('$mdPanel', function() {
 
       expect(openRejected).toBe(true);
       expect(panelRef.isAttached).toEqual(true);
-      expect(panelRef._panelContainer).toHaveClass(HIDDEN_CLASS);
+      expect(panelRef.panelContainer).toHaveClass(HIDDEN_CLASS);
     });
 
     it('should reject on hide when closing', function() {
@@ -250,7 +250,7 @@ describe('$mdPanel', function() {
 
       openPanel();
 
-      expect(panelRef._panelContainer).not.toHaveClass(HIDDEN_CLASS);
+      expect(panelRef.panelContainer).not.toHaveClass(HIDDEN_CLASS);
       expect(panelRef.isAttached).toEqual(true);
 
       panelRef.hide = function() {
@@ -269,7 +269,7 @@ describe('$mdPanel', function() {
 
       openPanel();
 
-      expect(panelRef._panelContainer).not.toHaveClass(HIDDEN_CLASS);
+      expect(panelRef.panelContainer).not.toHaveClass(HIDDEN_CLASS);
       expect(panelRef.isAttached).toEqual(true);
 
       panelRef.config.animation.animateClose = function() {
@@ -281,7 +281,7 @@ describe('$mdPanel', function() {
 
       expect(closeResolved).toBe(true);
       expect(panelRef.isAttached).toEqual(false);
-      expect(panelRef._panelContainer).toHaveClass(HIDDEN_CLASS);
+      expect(panelRef.panelContainer).toHaveClass(HIDDEN_CLASS);
     });
 
     it('should reject on detach when closing', function() {
@@ -289,7 +289,7 @@ describe('$mdPanel', function() {
 
       openPanel();
 
-      expect(panelRef._panelContainer).not.toHaveClass(HIDDEN_CLASS);
+      expect(panelRef.panelContainer).not.toHaveClass(HIDDEN_CLASS);
       expect(panelRef.isAttached).toEqual(true);
 
       panelRef.detach = function() {
@@ -327,6 +327,31 @@ describe('$mdPanel', function() {
   });
 
   describe('config options:', function() {
+
+    it('should not recreate a panel that is tracked by a user-defined id',
+        function() {
+          var config = {
+            id: 'custom-id'
+          };
+
+          var panel1 = $mdPanel.create(config);
+          panel1.open();
+          flushPanel();
+
+          var panels = document.querySelectorAll(PANEL_EL);
+          expect(panels.length).toEqual(1);
+
+          var panel2 = $mdPanel.create(config);
+          panel2.open();
+          flushPanel();
+
+          panels = document.querySelectorAll(PANEL_EL);
+          expect(panels.length).toEqual(1);
+
+          expect(panel1).toEqual(panel2);
+
+          panel1.close();
+        });
 
     it('should allow multiple panels', function() {
       var customClass = 'custom-class';
@@ -539,7 +564,7 @@ describe('$mdPanel', function() {
       var topTrap = focusTraps[0];
       var bottomTrap = focusTraps[1];
 
-      var panel = panelRef._panelEl;
+      var panel = panelRef.panelEl;
       var isPanelFocused = false;
       panel[0].addEventListener('focus', function() {
         isPanelFocused = true;
@@ -703,7 +728,7 @@ describe('$mdPanel', function() {
         expect(PANEL_EL).toExist();
         expect(attachResolved).toBe(true);
         expect(panelRef.isAttached).toEqual(true);
-        expect(panelRef._panelContainer).not.toHaveClass(HIDDEN_CLASS);
+        expect(panelRef.panelContainer).not.toHaveClass(HIDDEN_CLASS);
       });
 
       it('should reject open when onDomAdded rejects', function() {
@@ -725,7 +750,7 @@ describe('$mdPanel', function() {
         expect(onDomAddedCalled).toBe(true);
         expect(openRejected).toBe(true);
         expect(panelRef.isAttached).toEqual(true);
-        expect(panelRef._panelContainer).toHaveClass(HIDDEN_CLASS);
+        expect(panelRef.panelContainer).toHaveClass(HIDDEN_CLASS);
       });
 
       it('should call onOpenComplete if provided after adding the panel to the ' +
@@ -896,84 +921,79 @@ describe('$mdPanel', function() {
     });
 
     describe('CSS class logic:', function() {
-      it('should add a class to the container/wrapper when toElement=false',
-          function() {
-            openPanel(DEFAULT_CONFIG);
-
-            panelRef.addClass('my-class');
-
-            expect(PANEL_WRAPPER_CLASS).toHaveClass('my-class');
-            expect(PANEL_EL).not.toHaveClass('my-class');
-          });
-
-      it('should add a class to the element when toElement=true', function() {
+      it('should add a class to the container/wrapper', function() {
         openPanel(DEFAULT_CONFIG);
 
-        panelRef.addClass('my-class', true);
+        panelRef.panelContainer.addClass('my-class');
+
+        expect(PANEL_WRAPPER_CLASS).toHaveClass('my-class');
+        expect(PANEL_EL).not.toHaveClass('my-class');
+      });
+
+      it('should add a class to the element', function() {
+        openPanel(DEFAULT_CONFIG);
+
+        panelRef.panelEl.addClass('my-class');
 
         expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
         expect(PANEL_EL).toHaveClass('my-class');
       });
 
-      it('should remove a class from the container/wrapper when fromElement=false',
-          function() {
-            openPanel(DEFAULT_CONFIG);
+      it('should remove a class from the container/wrapper', function() {
+        openPanel(DEFAULT_CONFIG);
 
-            panelRef.addClass('my-class');
+        panelRef.panelContainer.addClass('my-class');
 
-            expect(PANEL_WRAPPER_CLASS).toHaveClass('my-class');
-            expect(PANEL_EL).not.toHaveClass('my-class');
+        expect(PANEL_WRAPPER_CLASS).toHaveClass('my-class');
+        expect(PANEL_EL).not.toHaveClass('my-class');
 
-            panelRef.removeClass('my-class');
+        panelRef.panelContainer.removeClass('my-class');
 
-            expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
-            expect(PANEL_EL).not.toHaveClass('my-class');
-          });
+        expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
+        expect(PANEL_EL).not.toHaveClass('my-class');
+      });
 
-      it('should remove a class from the element when fromElement=true',
-          function() {
-            openPanel(DEFAULT_CONFIG);
+      it('should remove a class from the element', function() {
+        openPanel(DEFAULT_CONFIG);
 
-            panelRef.addClass('my-class', true);
+        panelRef.panelEl.addClass('my-class');
 
-            expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
-            expect(PANEL_EL).toHaveClass('my-class');
+        expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
+        expect(PANEL_EL).toHaveClass('my-class');
 
-            panelRef.removeClass('my-class', true);
+        panelRef.panelEl.removeClass('my-class');
 
-            expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
-            expect(PANEL_EL).not.toHaveClass('my-class');
-          });
+        expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
+        expect(PANEL_EL).not.toHaveClass('my-class');
+      });
 
-      it('should toggle a class on the container/wrapper when onElement=false',
-          function() {
-            openPanel(DEFAULT_CONFIG);
+      it('should toggle a class on the container/wrapper', function() {
+        openPanel(DEFAULT_CONFIG);
 
-            panelRef.toggleClass('my-class');
+        panelRef.panelContainer.toggleClass('my-class');
 
-            expect(PANEL_WRAPPER_CLASS).toHaveClass('my-class');
-            expect(PANEL_EL).not.toHaveClass('my-class');
+        expect(PANEL_WRAPPER_CLASS).toHaveClass('my-class');
+        expect(PANEL_EL).not.toHaveClass('my-class');
 
-            panelRef.toggleClass('my-class');
+        panelRef.panelContainer.toggleClass('my-class');
 
-            expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
-            expect(PANEL_EL).not.toHaveClass('my-class');
-          });
+        expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
+        expect(PANEL_EL).not.toHaveClass('my-class');
+      });
 
-      it('should toggle a class on the element when onElement=true',
-          function() {
-            openPanel(DEFAULT_CONFIG);
+      it('should toggle a class on the element', function() {
+        openPanel(DEFAULT_CONFIG);
 
-            panelRef.toggleClass('my-class', true);
+        panelRef.panelEl.toggleClass('my-class');
 
-            expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
-            expect(PANEL_EL).toHaveClass('my-class');
+        expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
+        expect(PANEL_EL).toHaveClass('my-class');
 
-            panelRef.toggleClass('my-class', true);
+        panelRef.panelEl.toggleClass('my-class');
 
-            expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
-            expect(PANEL_EL).not.toHaveClass('n-class');
-          });
+        expect(PANEL_WRAPPER_CLASS).not.toHaveClass('my-class');
+        expect(PANEL_EL).not.toHaveClass('n-class');
+      });
     });
 
     describe('should focus on the origin element on', function() {
@@ -1312,7 +1332,7 @@ describe('$mdPanel', function() {
             .absolute()
             .top(top)
             .left(left);
-            
+
         config['position'] = position;
 
         openPanel(config);
@@ -2051,11 +2071,11 @@ describe('$mdPanel', function() {
 
       openPanel();
       // If animation dies, panel doesn't unhide.
-      expect(panelRef._panelContainer).not.toHaveClass(HIDDEN_CLASS);
+      expect(panelRef.panelContainer).not.toHaveClass(HIDDEN_CLASS);
 
       closePanel();
       // If animation dies, panel doesn't hide.
-      expect(panelRef._panelContainer).toHaveClass(HIDDEN_CLASS);
+      expect(panelRef.panelContainer).toHaveClass(HIDDEN_CLASS);
     });
 
     it('should animate with custom class', function() {
@@ -2065,11 +2085,11 @@ describe('$mdPanel', function() {
 
       openPanel();
       // If animation dies, panel doesn't unhide.
-      expect(panelRef._panelContainer).not.toHaveClass(HIDDEN_CLASS);
+      expect(panelRef.panelContainer).not.toHaveClass(HIDDEN_CLASS);
 
       closePanel();
       // If animation dies, panel doesn't hide.
-      expect(panelRef._panelContainer).toHaveClass(HIDDEN_CLASS);
+      expect(panelRef.panelContainer).toHaveClass(HIDDEN_CLASS);
     });
 
     describe('should determine openFrom when', function() {
@@ -2147,7 +2167,7 @@ describe('$mdPanel', function() {
       return;
     }
 
-    var container = panelRef._panelContainer;
+    var container = panelRef.panelContainer;
 
     container.triggerHandler({
       type: 'mousedown',
@@ -2167,7 +2187,7 @@ describe('$mdPanel', function() {
       return;
     }
 
-    var container = panelRef._panelContainer;
+    var container = panelRef.panelContainer;
 
     container.triggerHandler({
       type: 'keydown',

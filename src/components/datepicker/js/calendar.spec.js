@@ -113,7 +113,7 @@ describe('md-calendar', function() {
   function dispatchKeyEvent(keyCode, opt_modifiers) {
     var mod = opt_modifiers || {};
 
-    angular.element(calendarController.$element).triggerHandler({
+    angular.element(document.body).triggerHandler({
       type: 'keydown',
       keyCode: keyCode,
       which: keyCode,
@@ -647,16 +647,16 @@ describe('md-calendar', function() {
         selectedDate.focus();
 
         dispatchKeyEvent(keyCodes.UP_ARROW);
-        expect(getFocusedDateElement().textContent).toBe('Feb');
+        expect(getFocusedDateElement().textContent).toBe('Jan');
         expect(getGroupLabelForDateCell(getFocusedDateElement())).toBe('2014');
 
         dispatchKeyEvent(keyCodes.LEFT_ARROW);
-        expect(getFocusedDateElement().textContent).toBe('Feb');
+        expect(getFocusedDateElement().textContent).toBe('Jan');
         expect(getGroupLabelForDateCell(getFocusedDateElement())).toBe('2014');
 
         dispatchKeyEvent(keyCodes.DOWN_ARROW);
         dispatchKeyEvent(keyCodes.RIGHT_ARROW);
-        expect(getFocusedDateElement().textContent).toBe('Sep');
+        expect(getFocusedDateElement().textContent).toBe('Aug');
         expect(getGroupLabelForDateCell(getFocusedDateElement())).toBe('2014');
 
         dispatchKeyEvent(keyCodes.RIGHT_ARROW);
