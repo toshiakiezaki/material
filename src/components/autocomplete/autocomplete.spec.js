@@ -41,6 +41,7 @@ describe('<md-autocomplete>', function() {
 
       scope.searchText = '';
       scope.selectedItem = null;
+      scope.items = items;
 
       angular.forEach(scopeData, function(value, key) {
         scope[key] = value;
@@ -278,6 +279,36 @@ describe('<md-autocomplete>', function() {
       element.remove();
     }));
 
+    it('should forward focus to the input element with md-autofocus', inject(function($timeout) {
+
+      var scope = createScope();
+
+      var template =
+        '<md-autocomplete ' +
+        '    md-selected-item="selectedItem" ' +
+        '    md-search-text="searchText" ' +
+        '    md-items="item in match(searchText)" ' +
+        '    md-item-text="item.display" ' +
+        '    placeholder="placeholder"' +
+        '    md-autofocus>' +
+        '  <span md-highlight-text="searchText">{{item.display}}</span>' +
+        '</md-autocomplete>';
+
+      var element = compile(template, scope);
+      var input = element.find('input');
+
+      document.body.appendChild(element[0]);
+
+      // Initial timeout for gathering elements
+      $timeout.flush();
+
+      element.triggerHandler('focus');
+
+      expect(document.activeElement).toBe(input[0]);
+
+      element.remove();
+    }));
+
     it('allows using an empty readonly attribute', inject(function() {
       var scope = createScope(null, {inputId: 'custom-input-id'});
       var template = '\
@@ -382,6 +413,66 @@ describe('<md-autocomplete>', function() {
       var element = compile(template, scope);
 
       expect(element.attr('tabindex')).toBe('-1');
+
+      element.remove();
+    }));
+
+    it('should emit the ngBlur event from the input', inject(function() {
+      var scope = createScope(null, {
+        onBlur: jasmine.createSpy('onBlur event')
+      });
+
+      var template =
+        '<md-autocomplete ' +
+            'md-selected-item="selectedItem" ' +
+            'md-search-text="searchText" ' +
+            'md-items="item in match(searchText)" ' +
+            'md-item-text="item.display" ' +
+            'ng-blur="onBlur($event)" ' +
+            'placeholder="placeholder">' +
+          '<span md-highlight-text="searchText">{{item.display}}</span>' +
+        '</md-autocomplete>';
+
+      var element = compile(template, scope);
+      var input = element.find('input');
+
+      input.triggerHandler('blur');
+
+      expect(scope.onBlur).toHaveBeenCalledTimes(1);
+
+      // Confirm that the ngFocus event was called with the $event local.
+      var focusEvent = scope.onBlur.calls.mostRecent().args[0];
+      expect(focusEvent.target).toBe(input[0]);
+
+      element.remove();
+    }));
+
+    it('should emit the ngFocus event from the input', inject(function() {
+      var scope = createScope(null, {
+        onFocus: jasmine.createSpy('onFocus event')
+      });
+
+      var template =
+        '<md-autocomplete ' +
+            'md-selected-item="selectedItem" ' +
+            'md-search-text="searchText" ' +
+            'md-items="item in match(searchText)" ' +
+            'md-item-text="item.display" ' +
+            'ng-focus="onFocus($event)" ' +
+            'placeholder="placeholder">' +
+          '<span md-highlight-text="searchText">{{item.display}}</span>' +
+        '</md-autocomplete>';
+
+      var element = compile(template, scope);
+      var input = element.find('input');
+
+      input.triggerHandler('focus');
+
+      expect(scope.onFocus).toHaveBeenCalledTimes(1);
+
+      // Confirm that the ngFocus event was called with the $event object.
+      var focusEvent = scope.onFocus.calls.mostRecent().args[0];
+      expect(focusEvent.target).toBe(input[0]);
 
       element.remove();
     }));
@@ -840,6 +931,42 @@ describe('<md-autocomplete>', function() {
       expect($mdUtil.enableScrolling).toHaveBeenCalled();
     }));
 
+    it('removes the md-scroll-mask when md-autocomplete removed on change', inject(function($mdUtil, $timeout, $material) {
+      spyOn($mdUtil, 'enableScrolling');
+
+      var scope = createScope();
+      var template =
+        '<div>' +
+        '  <md-autocomplete' +
+        '     ng-if="!removeAutocomplete"' +
+        '     md-selected-item="selectedItem"' +
+        '     md-search-text="searchText"' +
+        '     md-items="item in match(searchText)"' +
+        '     md-item-text="item.display"' +
+        '     placeholder="placeholder">' +
+        '    <md-item-template>{{item.display}}</md-item-template>' +
+        '    <md-not-found>Sorry, not found...</md-not-found>' +
+        '  </md-autocomplete>' +
+        '</div>';
+      var element = compile(template, scope);
+      var ctrl = element.children().controller('mdAutocomplete');
+
+      $material.flushOutstandingAnimations();
+
+      // Focus our input
+      ctrl.focus();
+
+      // Set our search text to a value to make md-scroll-mask added to DOM
+      scope.searchText = 'searchText';
+
+      $timeout.flush();
+
+      // Set removeAutocomplete to false to remove the md-autocomplete
+      scope.$apply('removeAutocomplete = true');
+
+      expect($mdUtil.enableScrolling).toHaveBeenCalled();
+    }));
+
     it('should initialize the search text with an empty string', inject(function($mdUtil, $timeout, $material) {
       var scope = createScope();
 
@@ -1154,9 +1281,11 @@ describe('<md-autocomplete>', function() {
   });
 
   describe('xss prevention', function() {
+
     it('should not allow html to slip through', inject(function($timeout, $material) {
       var html = 'foo <img src="img" onerror="alert(1)" />';
-      var scope = createScope([{display: html}]);
+      var scope = createScope([{ display: html }]);
+
       var template = '\
           <md-autocomplete\
               md-selected-item="selectedItem"\
@@ -1167,6 +1296,7 @@ describe('<md-autocomplete>', function() {
               placeholder="placeholder">\
             <span md-highlight-text="searchText">{{item.display}}</span>\
           </md-autocomplete>';
+
       var element = compile(template, scope);
       var ctrl = element.controller('mdAutocomplete');
       var ul = element.find('ul');
@@ -1190,6 +1320,7 @@ describe('<md-autocomplete>', function() {
 
       element.remove();
     }));
+
   });
 
   describe('Async matching', function() {
@@ -1711,9 +1842,104 @@ describe('<md-autocomplete>', function() {
       document.body.removeChild(parent[0]);
     }));
 
+    it('should show on focus when min-length is met', inject(function($timeout) {
+      var scope = createScope();
+
+      // Overwrite the match function to always show some results.
+      scope.match = function() {
+        return scope.items;
+      };
+
+      var template =
+        '<div style="width: 400px">' +
+          '<md-autocomplete ' +
+              'md-search-text="searchText" ' +
+              'md-items="item in match(searchText)" ' +
+              'md-item-text="item.display" ' +
+              'md-min-length="0" ' +
+              'placeholder="placeholder">' +
+            '<span md-highlight-text="searchText">{{item.display}}</span>' +
+          '</md-autocomplete>' +
+        '</div>';
+
+      var parent = compile(template, scope);
+      var element = parent.find('md-autocomplete');
+      var ctrl = element.controller('mdAutocomplete');
+
+      // Add container to the DOM to be able to test the rect calculations.
+      document.body.appendChild(parent[0]);
+
+      ctrl.focus();
+      waitForVirtualRepeat(element);
+
+      // The scroll repeat container has been moved to the body element to avoid
+      // z-index / overflow issues.
+      var scrollContainer = document.body.querySelector('.md-virtual-repeat-container');
+      expect(scrollContainer).toBeTruthy();
+
+      // Expect the current width of the scrollContainer to be the same as of the parent element
+      // at initialization.
+      expect(scrollContainer.offsetParent).toBeTruthy();
+
+      document.body.removeChild(parent[0]);
+    }));
+
+    it('should not show on focus when min-length is not met', inject(function($timeout) {
+      var scope = createScope();
+
+      // Overwrite the match function to always show some results.
+      scope.match = function() {
+        return scope.items;
+      };
+
+      var template =
+        '<div style="width: 400px">' +
+          '<md-autocomplete ' +
+              'md-search-text="searchText" ' +
+              'md-items="item in match(searchText)" ' +
+              'md-item-text="item.display" ' +
+              'md-min-length="1" ' +
+              'placeholder="placeholder">' +
+            '<span md-highlight-text="searchText">{{item.display}}</span>' +
+          '</md-autocomplete>' +
+        '</div>';
+
+      var parent = compile(template, scope);
+      var element = parent.find('md-autocomplete');
+      var ctrl = element.controller('mdAutocomplete');
+
+      // Add container to the DOM to be able to test the rect calculations.
+      document.body.appendChild(parent[0]);
+
+      ctrl.focus();
+      waitForVirtualRepeat(element);
+
+      // The scroll repeat container has been moved to the body element to avoid
+      // z-index / overflow issues.
+      var scrollContainer = document.body.querySelector('.md-virtual-repeat-container');
+      expect(scrollContainer).toBeTruthy();
+
+      // Expect the dropdown to not show up, because the min-length is not met.
+      expect(scrollContainer.offsetParent).toBeFalsy();
+
+      ctrl.blur();
+
+      // Add one char to the searchText to match the minlength.
+      scope.$apply('searchText = "X"');
+
+      ctrl.focus();
+      waitForVirtualRepeat(element);
+
+      // Expect the dropdown to not show up, because the min-length is not met.
+      expect(scrollContainer.offsetParent).toBeTruthy();
+
+      document.body.removeChild(parent[0]);
+    }));
+
   });
 
   describe('md-highlight-text', function() {
+
     it('updates when content is modified', inject(function() {
       var template = '<div md-highlight-text="query">{{message}}</div>';
       var scope = createScope(null, {message: 'some text', query: 'some'});
@@ -1734,7 +1960,7 @@ describe('<md-autocomplete>', function() {
       element.remove();
     }));
 
-    it('should properly apply highlight flags', inject(function() {
+    it('should properly apply highlight flags', function() {
       var template = '<div md-highlight-text="query" md-highlight-flags="{{flags}}">{{message}}</div>';
       var scope = createScope(null, {message: 'Some text', query: 'some', flags: '^i'});
       var element = compile(template, scope);
@@ -1766,7 +1992,93 @@ describe('<md-autocomplete>', function() {
       expect(element.html()).toBe('Some text, some flag<span class="highlight">s</span>');
 
       element.remove();
-    }));
+    });
+
+    it('should correctly parse special text identifiers', function() {
+      var template = '<div md-highlight-text="query">{{message}}</div>';
+
+      var scope = createScope(null, {
+        message: 'Angular&Material',
+        query: 'Angular&'
+      });
+
+      var element = compile(template, scope);
+
+      expect(element.html()).toBe('<span class="highlight">Angular&amp;</span>Material');
+
+      scope.query = 'Angular&Material';
+      scope.$apply();
+
+      expect(element.html()).toBe('<span class="highlight">Angular&amp;Material</span>');
+
+      element.remove();
+    });
+
+    it('should properly parse html entity identifiers', function() {
+      var template = '<div md-highlight-text="query">{{message}}</div>';
+
+      var scope = createScope(null, {
+        message: 'Angular&amp;Material',
+        query: ''
+      });
+
+      var element = compile(template, scope);
+
+      expect(element.html()).toBe('Angular&amp;amp;Material');
+
+      scope.query = 'Angular&amp;Material';
+      scope.$apply();
+
+      expect(element.html()).toBe('<span class="highlight">Angular&amp;amp;Material</span>');
+
+
+      scope.query = 'Angular&';
+      scope.$apply();
+
+      expect(element.html()).toBe('<span class="highlight">Angular&amp;</span>amp;Material');
+
+      element.remove();
+    });
+
+    it('should prevent XSS attacks from the highlight text', function() {
+
+      spyOn(window, 'alert');
+
+      var template = '<div md-highlight-text="query">{{message}}</div>';
+
+      var scope = createScope(null, {
+        message: 'Angular Material',
+        query: '<img src="img" onerror="alert(1)">'
+      });
+
+      var element = compile(template, scope);
+
+      expect(element.html()).toBe('Angular Material');
+      expect(window.alert).not.toHaveBeenCalled();
+
+      element.remove();
+    });
+
+  });
+
+  it('should prevent XSS attacks from the content text', function() {
+
+    spyOn(window, 'alert');
+
+    var template = '<div md-highlight-text="query">{{message}}</div>';
+
+    var scope = createScope(null, {
+      message: '<img src="img" onerror="alert(1)">',
+      query: ''
+    });
+
+    var element = compile(template, scope);
+
+    // Expect the image to be escaped due to XSS protection.
+    expect(element.html()).toBe('&lt;img src="img" onerror="alert(1)"&gt;');
+    expect(window.alert).not.toHaveBeenCalled();
+
+    element.remove();
   });
 
 });
