@@ -98,6 +98,11 @@ describe('md-datepicker', function() {
     expect(controller.inputElement.placeholder).toBe('Fancy new placeholder');
   });
 
+  it('should forward the aria-label to the generated input', function() {
+    createDatepickerInstance('<md-datepicker ng-model="myDate" aria-label="Enter a date"></md-datepicker>');
+    expect(controller.ngInputElement.attr('aria-label')).toBe('Enter a date');
+  });
+
   it('should throw an error when the model is not a date', function() {
     expect(function() {
       pageScope.myDate = '2015-01-01';
@@ -115,6 +120,10 @@ describe('md-datepicker', function() {
       pageScope.$apply();
 
     }).not.toThrow();
+  });
+
+  it('should set the element type as "date"', function() {
+    expect(ngElement.attr('type')).toBe('date');
   });
 
   describe('ngMessages support', function() {
@@ -333,7 +342,7 @@ describe('md-datepicker', function() {
       expect(controller.ngModelCtrl.$modelValue).toEqual(initialDate);
     });
 
-    it('shoud become touched from bluring closing the pane', function() {
+    it('should become touched from blurring closing the pane', function() {
       populateInputElement('17/1/2015');
 
       controller.openCalendarPane({
@@ -344,7 +353,7 @@ describe('md-datepicker', function() {
       expect(controller.ngModelCtrl.$touched).toBe(true);
     });
 
-    it('should become touch from bluring the input', function() {
+    it('should become touch from blurring the input', function() {
       populateInputElement('17/1/2015');
 
       var input = angular.element(controller.inputElement);
@@ -373,7 +382,7 @@ describe('md-datepicker', function() {
       $timeout.flush();
 
       expect(controller.calendarPane.offsetHeight).toBeGreaterThan(0);
-      expect(controller.inputMask.style.left).toBe(controller.inputContainer.clientWidth + 'px');
+      expect(controller.inputMask[0].style.left).toBeTruthy();
 
       // Click off of the calendar.
       document.body.click();
@@ -490,7 +499,8 @@ describe('md-datepicker', function() {
       var triggerRect = controller.inputContainer.getBoundingClientRect();
 
       // We expect the offset to be close to the exact height, because on IE there are some deviations.
-      expect(paneRect.top).toBeCloseTo(triggerRect.top, 0.5);
+      expect(controller.topMargin).toBeGreaterThan(0);
+      expect(paneRect.top).toBeCloseTo(triggerRect.top - controller.topMargin, 0.5);
 
       // Restore body to pre-test state.
       body.removeChild(superLongElement);
@@ -761,6 +771,23 @@ describe('md-datepicker', function() {
       controller.ngInputElement.triggerHandler('focus');
       controller.closeCalendarPane();
       expect(pageScope.blurHandler).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('tabindex behavior', function() {
+    beforeEach(function() {
+      ngElement && ngElement.remove();
+    });
+
+    it('should remove the datepicker from the tab order, if no tabindex is specified', function() {
+      createDatepickerInstance('<md-datepicker ng-model="myDate"></md-datepicker>');
+      expect(ngElement.attr('tabindex')).toBe('-1');
+    });
+
+    it('should forward the tabindex to the input', function() {
+      createDatepickerInstance('<md-datepicker ng-model="myDate" tabindex="1"></md-datepicker>');
+      expect(ngElement.attr('tabindex')).toBeFalsy();
+      expect(controller.ngInputElement.attr('tabindex')).toBe('1');
     });
   });
 });
