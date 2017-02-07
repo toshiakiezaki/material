@@ -243,7 +243,8 @@ function SidenavFocusDirective() {
  *   - `<md-sidenav md-is-locked-open="$mdMedia('min-width: 1000px')"></md-sidenav>`
  *   - `<md-sidenav md-is-locked-open="$mdMedia('sm')"></md-sidenav>` (locks open on small screens)
  */
-function SidenavDirective($mdMedia, $mdUtil, $mdConstant, $mdTheming, $animate, $compile, $parse, $log, $q, $document) {
+function SidenavDirective($mdMedia, $mdUtil, $mdConstant, $mdTheming, $mdInteraction, $animate,
+                          $compile, $parse, $log, $q, $document, $window, $$rAF) {
   return {
     restrict: 'E',
     scope: {
@@ -251,8 +252,7 @@ function SidenavDirective($mdMedia, $mdUtil, $mdConstant, $mdTheming, $animate, 
     },
     controller: '$mdSidenavController',
     compile: function(element) {
-      element.addClass('md-closed');
-      element.attr('tabIndex', '-1');
+      element.addClass('md-closed').attr('tabIndex', '-1');
       return postLink;
     }
   };
@@ -264,10 +264,12 @@ function SidenavDirective($mdMedia, $mdUtil, $mdConstant, $mdTheming, $animate, 
     var lastParentOverFlow;
     var backdrop;
     var disableScrollTarget = null;
+    var triggeringInteractionType;
     var triggeringElement = null;
     var previousContainerStyles;
     var promise = $q.when(true);
     var isLockedOpenParsed = $parse(attr.mdIsLockedOpen);
+    var ngWindow = angular.element($window);
     var isLocked = function() {
       return isLockedOpenParsed(scope.$parent, {
         $media: function(arg) {
@@ -354,6 +356,7 @@ function SidenavDirective($mdMedia, $mdUtil, $mdConstant, $mdTheming, $animate, 
       if ( isOpen ) {
         // Capture upon opening..
         triggeringElement = $document[0].activeElement;
+        triggeringInteractionType = $mdInteraction.getLastInteractionType();
       }
 
       disableParentScroll(isOpen);
@@ -365,6 +368,12 @@ function SidenavDirective($mdMedia, $mdUtil, $mdConstant, $mdTheming, $animate, 
       ]).then(function() {
         // Perform focus when animations are ALL done...
         if (scope.isOpen) {
+          $$rAF(function() {
+            // Notifies child components that the sidenav was opened. Should wait
+            // a frame in order to allow for the element height to be computed.
+            ngWindow.triggerHandler('resize');
+          });
+
           focusEl && focusEl.focus();
         }
 
@@ -451,9 +460,9 @@ function SidenavDirective($mdMedia, $mdUtil, $mdConstant, $mdTheming, $animate, 
             // When the current `updateIsOpen()` animation finishes
             promise.then(function(result) {
 
-              if ( !scope.isOpen ) {
+              if ( !scope.isOpen && triggeringElement && triggeringInteractionType === 'keyboard') {
                 // reset focus to originating element (if available) upon close
-                triggeringElement && triggeringElement.focus();
+                triggeringElement.focus();
                 triggeringElement = null;
               }
 
@@ -494,9 +503,8 @@ function SidenavDirective($mdMedia, $mdUtil, $mdConstant, $mdTheming, $animate, 
  * @ngdoc controller
  * @name SidenavController
  * @module material.components.sidenav
- *
  */
-function SidenavController($scope, $element, $attrs, $mdComponentRegistry, $q) {
+function SidenavController($scope, $attrs, $mdComponentRegistry, $q, $interpolate) {
 
   var self = this;
 
@@ -518,5 +526,21 @@ function SidenavController($scope, $element, $attrs, $mdComponentRegistry, $q) {
   self.toggle = function() { return self.$toggleOpen( !$scope.isOpen );  };
   self.$toggleOpen = function(value) { return $q.when($scope.isOpen = value); };
 
-  self.destroy = $mdComponentRegistry.register(self, $attrs.mdComponentId);
+  // Evaluate the component id.
+  var rawId = $attrs.mdComponentId;
+  var hasDataBinding = rawId && rawId.indexOf($interpolate.startSymbol()) > -1;
+  var componentId = hasDataBinding ? $interpolate(rawId)($scope.$parent) : rawId;
+
+  // Register the component.
+  self.destroy = $mdComponentRegistry.register(self, componentId);
+
+  // Watch and update the component, if the id has changed.
+  if (hasDataBinding) {
+    $attrs.$observe('mdComponentId', function(id) {
+      if (id && id !== self.$$mdHandle) {
+        self.destroy(); // `destroy` only deregisters the old component id so we can add the new one.
+        self.destroy = $mdComponentRegistry.register(self, id);
+      }
+    });
+  }
 }
