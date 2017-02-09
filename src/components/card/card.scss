@@ -37,6 +37,11 @@ md-card {
 
       md-icon {
         padding: 8px;
+        > svg {
+          // Safari workaround for any SVG with padded parent
+          height: inherit;
+          width: inherit;
+        }
       }
 
       & + md-card-header-text {
@@ -60,7 +65,8 @@ md-card {
   }
 
   > img,
-  > md-card-header img {
+  > md-card-header img,
+  md-card-title-media img {
     box-sizing: border-box;
     display: flex;
     flex: 0 0 auto;

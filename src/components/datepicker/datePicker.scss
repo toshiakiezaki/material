@@ -1,22 +1,17 @@
 /** Styles for mdDatepicker. */
 $md-datepicker-button-gap: 12px !default;  // Space between the text input and the calendar-icon button.
+$md-datepicker-border-bottom-gap: 5px !default;  // Space between input and the grey underline.
 $md-date-arrow-size: 5px !default; // Size of the triangle on the right side of the input.
 $md-datepicker-open-animation-duration: 0.2s !default;
 $md-datepicker-triangle-button-width: 36px !default;
-$md-datepicker-input-height: 30px !default;
-$md-datepicker-input-mask-height: ($md-datepicker-input-height - 3) !default;
+$md-datepicker-input-mask-height: 40px !default;
 $md-datepicker-button-padding: 8px !default;
+
 
 md-datepicker {
   // Don't let linebreaks happen between the open icon-button and the input.
   white-space: nowrap;
   overflow: hidden;
-
-  // Leave room for the down-triangle button to "overflow" it's parent without modifying scrollLeft.
-  // This prevents the element from shifting right when opening via the triangle button.
-  @include rtl-prop(padding-right, padding-left, $md-datepicker-triangle-button-width / 2, 0);
-  @include rtl-prop(margin-right, margin-left, -$md-datepicker-triangle-button-width / 2, auto);
-
   vertical-align: middle;
 }
 
@@ -50,30 +45,14 @@ md-datepicker {
 // The input into which the user can type the date.
 .md-datepicker-input {
   @include md-flat-input();
-  padding-left: 1px;
-  height: $md-datepicker-input-height;
   min-width: 120px;
-  max-width: $md-calendar-width;
-  @include rtl-prop(margin-left, margin-right, 1px, auto);
-
-  &._md-datepicker-has-calendar-icon {
-    max-width: $md-calendar-width - $md-datepicker-button-gap;
-  }
+  max-width: $md-calendar-width - $md-datepicker-button-gap;
+  padding: 0 0 $md-datepicker-border-bottom-gap;
 }
 
 // If the datepicker is inside of a md-input-container
 ._md-datepicker-floating-label {
-  &._md-datepicker-has-calendar-icon > label:not(.md-no-float):not(._md-container-ignore) {
-    $width-offset: $md-datepicker-triangle-button-width * 2 + $md-datepicker-button-gap;
-    $offset: $md-datepicker-triangle-button-width / 2;
-    @include rtl(right, $offset, auto);
-    @include rtl(left, auto, $offset);
-    width: calc(100% - #{$width-offset});
-  }
-
   > md-datepicker {
-    display: flex;
-    margin: 0;
     // Prevents the ripple on the triangle from being clipped.
     overflow: visible;
 
@@ -82,9 +61,16 @@ md-datepicker {
     }
 
     .md-datepicker-button {
-      // Prevents the button from wrapping around.
+      // Prevents the button from wrapping around, as well as it pushing
+      // down the error messages more than they should be.
       @include rtl(float, left, right);
+      margin-top: $button-left-right-padding * -2;
+      top: $button-left-right-padding * 2 - $md-datepicker-border-bottom-gap / 2;
     }
+  }
+
+  .md-input {
+    float: none;
   }
 
   &._md-datepicker-has-calendar-icon {
@@ -103,6 +89,12 @@ md-datepicker {
   }
 }
 
+._md-datepicker-has-triangle-icon {
+  // Leave room for the down-triangle button to "overflow" it's parent without modifying scrollLeft.
+  // This prevents the element from shifting right when opening via the triangle button.
+  @include rtl-prop(padding-right, padding-left, $md-datepicker-triangle-button-width / 2, 0);
+  @include rtl-prop(margin-right, margin-left, -$md-datepicker-triangle-button-width / 2, auto);
+}
 
 // Container for the datepicker input.
 .md-datepicker-input-container {
@@ -153,27 +145,14 @@ md-datepicker {
 
 // Portion of the floating panel that sits, invisibly, on top of the input.
 .md-datepicker-input-mask {
-  // It needs to be 1px shorter because of the datepicker-input-container's bottom border,
-  // which can cause a slight hole in the mask when it's inside a md-input-container.
   height: $md-datepicker-input-mask-height;
   width: $md-calendar-width;
   position: relative;
+  overflow: hidden;
 
   background: transparent;
   pointer-events: none;
   cursor: text;
-}
-
-.md-datepicker-input-mask-opaque {
-  position: absolute;
-  right: 0;
-  left: 120px;
-  height: 100%;
-
-  // The margin pulls it an extra pixel to the left, which gives it a slight overlap
-  // with the input container. This ensures that there are no gaps between the two
-  // elements.
-  margin-left: -1px;
 }
 
 // The calendar portion of the floating pane (vs. the input mask).
@@ -215,14 +194,14 @@ md-datepicker {
 .md-datepicker-triangle-button {
   position: absolute;
   @include rtl-prop(right, left, 0, auto);
-  top: $md-date-arrow-size;
+  bottom: -$md-date-arrow-size / 2;
 
   // TODO(jelbourn): This position isn't great on all platforms.
-  @include rtl(transform, translateY(-25%) translateX(45%), translateY(-25%) translateX(-45%));
+  @include rtl(transform, translateX(45%), translateX(-45%));
 }
 
 // Need crazy specificity to override .md-button.md-icon-button.
-// Only apply this high specifiy to the property we need to override.
+// Only apply this high specificity to the property we need to override.
 .md-datepicker-triangle-button.md-button.md-icon-button {
   height: $md-datepicker-triangle-button-width;
   width: $md-datepicker-triangle-button-width;
@@ -234,15 +213,6 @@ md-datepicker {
 md-datepicker[disabled] {
   .md-datepicker-input-container {
     border-bottom-color: transparent;
-    background-size: 4px 1px;
-    background-repeat: repeat-x;
-    background-position: bottom -1px left 0;
-    background-image: -ms-linear-gradient(left, transparent 0%, rgba(0,0,0,0.38) 100%);
-        background-image: linear-gradient(to right, rgba(0,0,0,0.38) 0%, rgba(0,0,0,0.38) 33%, transparent 0%);
-
-    >input {
-      color: rgba(0, 0, 0, 0.38);
-    }
   }
 
   .md-datepicker-triangle-button {
@@ -252,11 +222,16 @@ md-datepicker[disabled] {
 
 // Open state for all of the elements of the picker.
 .md-datepicker-open {
-  .md-icon-button + .md-datepicker-input-container {
-    @include rtl-prop(margin-left, margin-right, -$md-datepicker-button-gap, auto);
+  overflow: hidden;
+
+  .md-datepicker-input-container,
+  input.md-input {
+    border-bottom-color: transparent;
   }
 
-  .md-datepicker-triangle-button {
+  .md-datepicker-triangle-button,
+  &.md-input-has-value > label,
+  &.md-input-has-placeholder > label {
     display: none;
   }
 }
