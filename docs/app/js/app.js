@@ -128,7 +128,7 @@ function(SERVICES, COMPONENTS, DEMOS, PAGES,
 
   $routeProvider.otherwise('/');
 
-  // Change hash prefix of the Angular router, because we use the hash symbol for anchor links.
+  // Change hash prefix of the AngularJS router, because we use the hash symbol for anchor links.
   // The hash will be not used by the docs, because we use the HTML5 mode for our links.
   $locationProvider.hashPrefix('!');
 
@@ -339,6 +339,7 @@ function(SERVICES, COMPONENTS, DEMOS, PAGES, $location, $rootScope, $http, $wind
 
   $http.get("/docs.json")
       .then(function(response) {
+        response = response.data;
         var versionId = getVersionIdFromPath();
         var head = { type: 'version', url: '/HEAD', id: 'head', name: 'HEAD (master)', github: '' };
         var commonVersions = versionId === 'head' ? [] : [ head ];
